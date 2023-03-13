@@ -460,7 +460,7 @@ if(dqrunif(1,0,1)<(risk_data[3]/100)){
 grow_rate_i<-qlnorm(dqrunif(1,0,1),meanlog=log_norm_mean,sdlog=sqrt(log_norm_sd))
 
 #Incidence age (under current programme)
-ca_incidence_i <- cmp_incidence_function()
+ca_incidence_i <- cmp_incidence_function(Incidence_Mortality, start_age, screen_endage, screen_startage, prop_screen_detected, clin_detection_m, clin_detection_sd, start_size, screen_detection_m, screen_detection_sd)
 ca_incidence_age <- ca_incidence_i[1]
 
 #Clinical detection age
@@ -549,7 +549,7 @@ while ((age < Mort_age) && (interval_ca == 0) && (screen_detected_ca == 0)){
       Ca_size <- 2*(Ca_size/(4/3*pi))^(1/3)
       
     #Determine if screening detects the cancer
-      screen_result <- cmp_screening_result(Ca_size,VDG,MRI_screening,US_screening)
+    screen_result <- cmp_screening_result(Ca_size, VDG, MRI_screening, US_screening, beta2, beta1, sensitivity_max, Sen_VDG, Sen_VDG_av, MRI_cdr, Mammo_cdr, US_cdr)
      
     #If a cancer is detected add a cancer and details to the counters
       
@@ -602,8 +602,7 @@ while ((age < Mort_age) && (interval_ca == 0) && (screen_detected_ca == 0)){
     costs = costs + (cost_DCIS*current_discount)}
 
     #Generate a cancer specific survival time, accounting for competing risks
-    Ca_mort_age <- cmp_ca_survival_time(stage_cat,Mort_age,age,CD_age)
-    if(Ca_mort_age<Mort_age){Mort_age<-Ca_mort_age}
+    list[Ca_mort_age,Mort_age] = cmp_ca_survival_time(stage_cat, age, gamma_stage, CD_age, Incidence_Mortality, acmmortality_wb_a, acmmortality_wb_b, time_horizon, metastatic_survival)
     
     if(stage_cat<3){iStage<-"Early"} else {iStage<-"Late"}
     if(age<65){iAge<-"18.64"} else {iAge<-"65plus"}

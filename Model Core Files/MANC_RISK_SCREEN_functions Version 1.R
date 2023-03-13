@@ -6,8 +6,7 @@ fnModPred <- function(iStage, iAge, iLE, modC) {
 }
 
 #Load functions required for model
-Incidence_function <- function(){
-  
+Incidence_function <- function(Incidence_Mortality, start_age, screen_endage, screen_startage, prop_screen_detected, clin_detection_m, clin_detection_sd, start_size, screen_detection_m, screen_detection_sd) {
   #x<- cumsum(Incidence_Mortality[,2][21:101])
   #Sample an incidence time (based on vector of probabilities of getting cancer at age t conditional on getting cancer and surviving to age t)
   incidence_time_1 <- sample(x = Incidence_Mortality[,1][start_age:101],size = 1,prob = Incidence_Mortality[,2][start_age:101])
@@ -62,7 +61,7 @@ cmp_incidence_function<-cmpfun(Incidence_function)
 
 #matrix with proporiton in each ?stage group for each size category
 #Updated 1010 include DCIS
-stage_by_size <- function(Ca_size){
+stage_by_size <- function(Ca_size, metastatic_prob, ca_size_cut, stage_by_size_mat) {
   stage_cat <- 0
   
   #first determine if advanced cancer or not based on metastatic prob by size (categorical)
@@ -86,8 +85,7 @@ cmp_stage_by_size<-cmpfun(stage_by_size)
 #Screen test results simulation
 #Updated 0915 with weedon-fekjaer 2008 estimates
 #args (inputs) are tumour diameter, VDG, MRI_screening(0/1), US_screening(0/1) 
-screening_result <- function(Ca_size,VDG,MRI_screening,US_screening){
-  
+screening_result <- function(Ca_size, VDG, MRI_screening, US_screening, beta2, beta1, sensitivity_max, Sen_VDG, Sen_VDG_av, MRI_cdr, Mammo_cdr, US_cdr) {
   #Caculate size/density specific sensitivity  
   Sensitivity <- if(
     exp((Ca_size - beta2)/beta1)/(1+exp((Ca_size-beta2)/beta1))>sensitivity_max){sensitivity_max}else{exp((Ca_size - beta2)/beta1)/(1+exp((Ca_size-beta2)/beta1))} #use to set max sensitivity 0.95
@@ -133,9 +131,7 @@ cmp_screening_result<-cmpfun(screening_result)
 #Needs to know stage_cat to generate a survival time from current age (currently 10-yr with cancer survival is irrespective of age), mort_age and age are need for those suviving beyond 10 years.
 
 #Further assumption to guard against (reverse)lead-time bias is that cancer-specific survival is calculated from the age the cancer would have been clinically detected. Assumes no mortality effect of treatment.
-
-Ca_survival_time <- function(stage_cat, Mort_age,age, CD_age){
-  
+Ca_survival_time <- function(stage_cat, age, gamma_stage, CD_age, Incidence_Mortality, acmmortality_wb_a, acmmortality_wb_b, time_horizon, metastatic_survival) {
   if (stage_cat< 4){
     survival_time <- -(log(x = dqrunif(1,0,1))/gamma_stage[stage_cat]) #inverse of cdf when rate is gamma_stage[x]
     
@@ -164,7 +160,10 @@ Ca_survival_time <- function(stage_cat, Mort_age,age, CD_age){
   }
   
   if(CD_age+survival_time > time_horizon){survival_time <- time_horizon-CD_age}
-  result <- CD_age+survival_time
-  return(result)
+  ca_mort_age <- CD_age+survival_time
+
+  if(ca_mort_age<Mort_age){Mort_age<-ca_mort_age}
+
+  return( list[ca_mort_age,Mort_age] )  
 }
 cmp_ca_survival_time<-cmpfun(Ca_survival_time)
