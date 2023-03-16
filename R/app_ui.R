@@ -1,0 +1,53 @@
+#' The application User-Interface
+#'
+#' @param request Internal parameter for `{shiny}`.
+#'     DO NOT REMOVE.
+#' @import shiny
+#' @noRd
+app_ui <- function(request) {
+  tagList(
+    # Leave this function for adding external resources
+    golem_add_external_resources(),
+    # Your application UI logic
+    fluidPage(
+      h1("MancRiskScreenUI"),
+      h2("A Random DT"),
+      DT::dataTableOutput("data_table"),
+      h2("A Random Image"),
+      plotOutput("image", height = "300px"),
+      h2("A Random Plot"),
+      plotOutput("plot"),
+      h2("A Random Print"),
+      verbatimTextOutput("print"),
+      h2("A Random Table"),
+      tableOutput("table"),
+      h2("A Random Text"),
+      tableOutput("text")
+    )
+  )
+}
+
+#' Add external Resources to the Application
+#'
+#' This function is internally used to add external
+#' resources inside the Shiny application.
+#'
+#' @import shiny
+#' @importFrom golem add_resource_path activate_js favicon bundle_resources
+#' @noRd
+golem_add_external_resources <- function() {
+  add_resource_path(
+    "www",
+    app_sys("app/www")
+  )
+
+  tags$head(
+    favicon(ext = 'png'),
+    bundle_resources(
+      path = app_sys("app/www"),
+      app_title = "MancRiskScreenUI"
+    )
+    # Add here other external resources
+    # for example, you can add shinyalert::useShinyalert()
+  )
+}

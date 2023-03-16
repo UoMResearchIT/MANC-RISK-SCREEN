@@ -5,8 +5,12 @@ Model Core Files/noscreening_PSA.csv
 Model Core Files/PSA check.xlsx
 
 renv/*
+bak/*
 
 *.RData
 *.Rdata
 .Rhistory
 .Rproj.user
+.Rdata
+.httr-oauth
+.DS_Store
