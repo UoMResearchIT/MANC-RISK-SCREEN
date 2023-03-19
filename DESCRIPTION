@@ -19,7 +19,10 @@ Imports:
     config (>= 0.3.1),
     golem (>= 0.4.0),
     shiny (>= 1.7.4),
-    DT
+    shinipsum,
+    DT,
+    shinysender,
+    pkgload
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
