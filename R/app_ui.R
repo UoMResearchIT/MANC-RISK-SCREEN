@@ -5,25 +5,16 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
+
+  NCOL <- 3
+
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
-    fluidPage(
-      h1("MancRiskScreenUI"),
-      h2("A Random DT"),
-      DT::dataTableOutput("data_table"),
-      h2("A Random Image"),
-      plotOutput("image", height = "300px"),
-      h2("A Random Plot"),
-      plotOutput("plot"),
-      h2("A Random Print"),
-      verbatimTextOutput("print"),
-      h2("A Random Table"),
-      tableOutput("table"),
-      h2("A Random Text"),
-      tableOutput("text")
-    )
+
+    # PROVISIONAL? Code-generated UI table
+    source("dev/auto_generated_ui.R",local=T)
   )
 }
 
