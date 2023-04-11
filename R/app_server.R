@@ -14,7 +14,8 @@ app_server <- function(input, output, session) {
 
   load_input_config(session)
 
-  lapply(advanced_inputs,shinyjs::disable)
+  #lapply(advanced_inputs,shinyjs::disable)
+  lapply(advanced_inputs,shinyjs::hide)
 
   lapply(fixed_inputs,shinyjs::hide)
 
