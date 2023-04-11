@@ -12,7 +12,17 @@ app_server <- function(input, output, session) {
   advanced_inputs <- input_list("advanced")
   fixed_inputs <- input_list("fixed")
 
+  load_input_config(session)
+
   lapply(advanced_inputs,shinyjs::disable)
+
+  lapply(fixed_inputs,shinyjs::hide)
+
+  # half <- reactive({
+  #   even <- input$n %% 2 == 0
+  #   shinyFeedback::feedbackWarning("n", !even, "Please select an even number")
+  #   input$n / 2
+  # })
 
   # output$data_table <- DT::renderDT({
   #   random_DT(10, 5)
@@ -21,8 +31,11 @@ app_server <- function(input, output, session) {
   #   random_image()
   # }, deleteFile = TRUE)
 
-  output$text <- renderText({
-    random_text(nwords = 50)
+  output$intro_text <- renderText(random_text(nwords = 50))
+
+  output$status <- renderPrint({
+    # do.call('req',reactiveValuesToList(values)[basic_inputs])
+    print(reactiveValuesToList(input)[basic_inputs])
   })
 
   output$plot <- renderPlot({
