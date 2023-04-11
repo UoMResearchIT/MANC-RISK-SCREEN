@@ -6,6 +6,7 @@ Model Core Files/PSA check.xlsx
 
 renv/*
 bak/*
+man/*
 
 *.RData
 *.Rdata

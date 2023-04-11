@@ -2,34 +2,47 @@ Package: MancRiskScreenUI
 Title: Manchester-Breast-Cancer-Model
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Martin", "Herrerias", email = 'martin.herreriasazcue@manchester.ac.uk', role = "cre"),
-    person("Stuart","Wright", role = "aut"),
-    person("Gabriel","Rogers", role = "aut"),
+    person("Martin", "Herrerias", , "martin.herreriasazcue@manchester.ac.uk", role = "cre"),
+    person("Stuart", "Wright", role = "aut"),
+    person("Gabriel", "Rogers", role = "aut"),
     person("Katherine", "Payne", role = "aut"),
     person("Ewan", "Gray", role = "aut"),
     person("Anna", "Donten", role = "aut"),
     person("Rob", "Hainsworth", role = "aut"),
-    person("University of Manchester Centre for Health Economics", role = c("cph", "fnd")))
-Description: Discrete event simulation model of breast cancer screening on 
-    synthetic populations, to identify the incremental costs and consequences 
-    of stratified national breast screening programs and drivers of relative 
-    cost-effectiveness.
+    person("University of Manchester Centre for Health Economics", role = c("cph", "fnd"))
+  )
+Description: Discrete event simulation model of breast cancer screening on
+    synthetic populations, to identify the incremental costs and
+    consequences of stratified national breast screening programs and
+    drivers of relative cost-effectiveness.
 License: MIT + file LICENSE
-Imports: 
-    config (>= 0.3.1),
-    golem (>= 0.4.0),
-    shiny (>= 1.7.4),
-    shinipsum,
-    DT,
-    shinysender,
-    pkgload
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.2.3
 URL: https://github.com/UoMResearchIT/MANC-RISK-SCREEN
 BugReports: https://github.com/UoMResearchIT/MANC-RISK-SCREEN/issues
+Depends:
+    R (>= 2.10)
+Imports: 
+    config (>= 0.3.1),
+    dplyr,
+    glue,
+    golem (>= 0.4.0),
+    gsubfn,
+    magrittr,
+    rlang,
+    shinipsum,
+    shiny (>= 1.7.4),
+    shinyFeedback,
+    shinyjs,
+    shinyMatrix,
+    tibble,
+    tidyr
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
+Remotes:
+    UoMResearchIT/r-shinysender,
+    yonicd/covrpage
 Config/testthat/edition: 3
+Encoding: UTF-8
 Language: en-US
+LazyData: true
+RoxygenNote: 7.2.3
