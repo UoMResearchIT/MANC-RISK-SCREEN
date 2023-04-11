@@ -240,6 +240,12 @@ parse_line <- function(line) {
 
   line$type <- stringr::str_to_lower(glue::trim(line$type))
 
+  # Escape unicode characters
+  line$description <- stringi::stri_escape_unicode(line$description)
+  if ( is.empty(line$symbol) ) {
+    line$symbol <- stringi::stri_escape_unicode(line$symbol)
+  }
+
   if (grepl("num|slider", line$type, ignore.case = T)) {
     list[args, line] <- parse_numeric(line)
 
