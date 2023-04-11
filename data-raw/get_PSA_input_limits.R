@@ -20,12 +20,12 @@ get_PSA_input_limits <- function() {
 
   conflicts <- setdiff(basic_inputs, var_names)
   if (!rlang::is_empty(conflicts)) {
-    stop("basic inputs missing from PSA config: ", str_flatten_comma(conflicts))
+    stop("basic inputs missing from PSA config: ", stringr::str_flatten_comma(conflicts))
   }
 
   conflicts <- setdiff(var_names, basic_inputs)
   if (!rlang::is_empty(conflicts)) {
-    warning("Variables in PSA config missing from basic inputs: ", str_flatten_comma(conflicts))
+    warning("Variables in PSA config missing from basic inputs: ", stringr::str_flatten_comma(conflicts))
   }
 
   var_names <- intersect(var_names, basic_inputs)

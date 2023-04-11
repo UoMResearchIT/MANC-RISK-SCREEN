@@ -65,5 +65,5 @@ devtools::check()
 
 Sys.setenv(SHINYSENDER_SERVER="shiny.its.manchester.ac.uk")
 Sys.setenv(SHINYSENDER_USER="m96523mh")
-# shinysender::ss_uploadAddin()
+shinysender::ss_uploadAddin()
 
