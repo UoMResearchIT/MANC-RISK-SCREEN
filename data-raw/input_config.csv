@@ -1,0 +1,90 @@
+group	id	type	basic	fixed	default	rel_min	rel_max	abs_min	abs_max	step	symbol	unit	description	notes
+Simulation parameters														
+	inum				100000								Number of simulated women	
+	jnum			x							?		Number of simulated lifetimes per woman	Not used - not functional in the model but removing causes issues
+														
+Screening programme and related parameters														
+	screen_strategy	select			2			1	6	1			Screening strategy	GAM model runs for all (6) base strategies
+	supplemental_screening	check			0								When switched on adds MRI and ultrasound screening for women with dense breasts	
+	uptakefirstscreen	slider			0.60499999999999998	0.4	1	0	1	0.01			Probability that woman attends first screening	
+	uptakeotherscreen	slider			0.85199999999999998	0.4	1	0	1	0.01			Probability that woman attends further screening (having attended first)	
+	uptakenoscreen	slider			0.191	0	0.8	0	1	0.01			Probability that woman attends screening (having missed first)	
+	risk_uptake	slider			1			0	1	0.01			Proportion of women who want risk predicted	
+	risk_feedback	slider			1			0	1	0.01			Proportion of women who attend risk consultation	
+	screen_change	slider			1			0	1	0.01			Proportion of women with high/moderate/low risk who change screening interval	
+	start_age	slider			38	24	60	18	60	1		years	Age of an individual at start of simulation	Values below 24 may produce misleading results as tumours don't have enough time to develop correctly
+	time_horizon			x	100			100				years	Max age in the model (100)	This can be fixed as there are some hard checks in the model
+	discount_health	slider			3.5000000000000003E-2	0	0.1	0	1	0.005			Health discount rate	
+	discount_cost	slider			3.5000000000000003E-2	0	0.1	0	1	0.005			Cost discount rate	
+														
+Clinical parameters for screening														
+	prop_screen_detected	slider			0.43099999999999999	0.3	0.6	0	1	0.01			Proportion of cancers in screening age range detected by screen	
+	acmmortality_wb_a	numeric			7.9370000000000003								All-cause mortality Weibull shape	
+	acmmortality_wb_b	numeric			86.787999999999997								All-cause mortality Weibull scale	
+	gamma_survival_1	slider	x		0.9789983854127825	gamma_survival_2		0	1	0.01			Five-year survival for stage 1 cancer	Must be decreasing, adjust units (5-yr to rate param)
+	gamma_survival_2	slider	x		0.89556648575649467	gamma_survival_3	gamma_survival_1	0	1	0.01			Five-year survival for stage 2 cancer	
+	gamma_survival_3	slider	x		0.72008419845076599		gamma_survival_2	0	1	0.01			Five-year survival for stage 3 cancer	
+														
+														
+	Incidence_Mortality	file			Incidence_Mortality_ONS2.csv								Incidence disribution	Must sum to 1
+	risk_mat	file			synthetic_risk_data.csv								Synthetic dataset of breast density, 10 year, and lifetime breast cancer risk derived from PROCAS2 study	Fixed
+	metastatic_prob	table			data.frame(age=c(25,35,45,55,65,75,85), prob=c(0.046218154,0.086659039,0.109768116,0.127099924,0.142505975,0.159837783,1.73E-01))								Metastatic cancer probabilities by age	
+	stage_by_size_mat	table			data.frame("v1"=c(0.383,0.567,0.611,0.557,0,0), "v2"=c(0.033,0.111,0.180,0.208,0.723,0.563), "v3"=c(0.058,0.057,0.208,0.147,0.206,0.351), "v5"=c(0.525,0.265,0.120,0.088,0.071,0.086))								Nottingham Prognostic Indicator by cancer size	This is quite an important one but there is quite complex calculation underpinning it that might need people to send me data to reformat
+	screen_detection_m	numeric			6.12								Mean doubling rate for tumours at screen detection	
+	screen_detection_sd	numeric			0.96								Standard deviation of the doubling rate for tumours at screen detection	
+	clin_detection_m	numeric			6.5								Mean doubling rate for tumours	
+	clin_detection_sd	numeric			0.53500000000000003								Standard deviation of the doubling rate for tumours	
+	beta_1	numeric	x		1.47						β₁	mm	Sensitivity of mammography (β₁) — how rapidly sensitivity changes with tumour size	
+	beta_2	numeric	x		6.51						β₂	mm	Sensitivity of mammography (β₂) — size of tumour for which sensitivity is equal to 50%.	
+	sensitivity_max			x	0.95			0	1				Maximum screening sensitivity	Fixed
+	VDG1_sen	slider	x		0.85	VDG2_sen		0	1	0.01			Sensitivity of mammography for Volpara Density Group (VDG) 1.	Sen_VDG must be decreasing, and less than sensitivity_max
+	VDG2_sen	slider	x		0.77600000000000002	VDG3_sen	VDG1_sen	0	1	0.01			Sensitivity of mammography for Volpara Density Group (VDG) 2.	
+	VDG3_sen	slider	x		0.69499999999999995	VDG4_sen	VDG2_sen	0	1	0.01			Sensitivity of mammography for Volpara Density Group (VDG) 3.	
+	VDG4_sen	slider	x		0.61		VDG3_sen	0	1	0.01			Sensitivity of mammography for Volpara Density Group (VDG) 4.	
+	Sen_VDG_av	numeric			0.75700000000000001								Average mammography sensitivity	
+	Mammo_cdr	numeric			4.2								Cancer detection rate per 1000 high dense screens Mammo CEPAC	
+	MRI_cdr	slider	x		5.0000000000000001E-3			0	1	0.01			CDR for MRI in Mammo negative women (incremental)	
+	US_cdr	slider	x		3.0000000000000001E-3			0	1	0.01			CDR for US in Mammo negative women (incremental)	
+	log_norm_mean	numeric	x		1.07						α₁	1/yr	Tumour growth rate mean (lognormal)	
+	log_norm_sd	numeric	x		1.31						α₂	1/yr	Tumour growth rate SD	
+	max_size			x	128							mm	Maximum tumour size	Fixed
+	start_size			x	0.25							mm	Tumour starting size (diameter)	Fixed
+	meta_survival_54	slider	x		0.43287381609546388	meta_survival_74		0	1	0.01			Five-year metatstatic survival, ages 0-54	Must be decreasing, adjust units  (5-yr to rate param)
+	meta_survival_74	slider	x		0.28711576889411455	meta_survival_99	meta_survival_54	0	1	0.01			Five-year metastatic survival, ages 55-74	
+	meta_survival_99	slider	x		0.16214330869807639		meta_survival_74	0	1	0.01			Five-year metastatic survival, ages 75+	
+														
+	screen_startage	slider			50	max(25,start_age)	60	18	100			years	Screen start age	
+	screen_endage	slider			70	60	90	18	100			years	Screen end age	
+														
+	risk_cutoffs_procas	vector			c(1.5,3.5,5,8,100)								Risk cut-offs for PROCAS plan	
+	risk_cutoffs_tert	vector			c(1.946527,2.942792)								Risk cut-offs for tertiles of risk	
+	low_risk_cut				1.5								Risk cut-off in low-risk-only strategies	
+	density_cutoff				3			1	4				Breast density cut-offs for supplemental sreening (VDG groups 3 and 4)	
+	ca_size_cut	vector			c(0.025, 5, 10, 15, 20, 30, 128)								Cancer size category cut-points (from Kolias 1999)	
+														
+Cost data														
+	cost_strat				8.4499999999999993			0	200			£	Cost of stratification process	
+	cost_screen				60.56			0	200			£	Cost of screening	
+	cost_follow_up				106							£	Cost of follow up	
+	cost_biop				290							£	Cost of biopsy	
+	cost_DCIS				9840			0	50000			£	Cost of DCIS screening?	
+	cost_US				52							£	Cost of ultrasonography	
+	cost_MRI				114							£	Cost of MRI	
+	tblLookup	table		x	costs_laudicella()								Cost of cancer treatment	Fixed (for now), to be simplified / tuned by simpler parameter set in the future
+														
+														
+False Positive and Overdiagnosis parameters														
+	recall_rate				4.5600000000000002E-2			0	1	0.01			Approx. UK recall rate	
+	biopsy_rate				2.4E-2			0	1	0.01			False-positivebiopsyproportion	
+														
+Utility Weights														
+	utility_ages	table			data.frame(age=c(30,35,40,45,50,55,60,65,70,75,80,85,90,95,100), util=c(0.9383,0.9145,0.9069,0.8824,0.8639,0.8344,0.8222,0.8072,0.8041,0.779,0.7533,0.6985,0.6497,0.6497,0.6497))								Set age adjusted utility values	
+	utility_DCIS				1			0	1	0.01			Non/micro-invasive tumour (DCIS) utility decrement	
+	util_1to3	numeric	x		0.82			0	1	0.01			Utility decrement (first yeara, set time independent) stages 1 to 3	
+	util_4	numeric	x		0.75			0	1	0.01			Utility decrement (first year, set time independent) metastatic	
+	utility_stage_cat_y1												First year utility decrements (set time independent)	
+	utility_stage_cat_follow												Following year utility decrements (set time independent)	
+														
+Output														
+	results													
+	merged_result													

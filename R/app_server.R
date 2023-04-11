@@ -8,8 +8,9 @@
 app_server <- function(input, output, session) {
   # Your application server logic
 
-  # PROVISIONAL? Code-generated list of advanced_inputs
-  source("dev/auto_generated_server.R",local=T)
+  basic_inputs <- input_list("basic")
+  advanced_inputs <- input_list("advanced")
+  fixed_inputs <- input_list("fixed")
 
   lapply(advanced_inputs,shinyjs::disable)
 
