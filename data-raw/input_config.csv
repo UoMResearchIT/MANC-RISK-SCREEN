@@ -22,12 +22,12 @@ Uptake
 	screen_change	slider			1			0	1	0.01			Proportion of women with high/moderate/low risk who change screening interval	
 														
 Cancer and all cause mortality														
-	gamma_survival_1	slider	x		0.9789983854127825	gamma_survival_2		0	1	0.01			Five-year survival for stage 1 cancer	Must be decreasing, adjust units (5-yr to rate param)
-	gamma_survival_2	slider	x		0.89556648575649467	gamma_survival_3	gamma_survival_1	0	1	0.01			Five-year survival for stage 2 cancer	
-	gamma_survival_3	slider	x		0.72008419845076599		gamma_survival_2	0	1	0.01			Five-year survival for stage 3 cancer	
-	meta_survival_54	slider	x		0.43287381609546388	meta_survival_74		0	1	0.01			Five-year metatstatic survival, ages 0-54	Must be decreasing, adjust units  (5-yr to rate param)
-	meta_survival_74	slider	x		0.28711576889411455	meta_survival_99	meta_survival_54	0	1	0.01			Five-year metastatic survival, ages 55-74	
-	meta_survival_99	slider	x		0.16214330869807639		meta_survival_74	0	1	0.01			Five-year metastatic survival, ages 75+	
+	gamma_survival_1	slider	x		0.9789983854127825	gamma_survival_2		0	1	0.01		5yr	Five-year survival for stage 1 cancer	Must be decreasing, adjust units (5-yr to rate param)
+	gamma_survival_2	slider	x		0.89556648575649467	gamma_survival_3	gamma_survival_1	0	1	0.01		5yr	Five-year survival for stage 2 cancer	
+	gamma_survival_3	slider	x		0.72008419845076599		gamma_survival_2	0	1	0.01		5yr	Five-year survival for stage 3 cancer	
+	meta_survival_54	slider	x		0.43287381609546388	meta_survival_74		0	1	0.01		5yr	Five-year metatstatic survival, ages 0-54	Must be decreasing, adjust units  (5-yr to rate param)
+	meta_survival_74	slider	x		0.28711576889411455	meta_survival_99	meta_survival_54	0	1	0.01		5yr	Five-year metastatic survival, ages 55-74	
+	meta_survival_99	slider	x		0.16214330869807639		meta_survival_74	0	1	0.01		5yr	Five-year metastatic survival, ages 75+	
 	acmmortality_wb_a	numeric			7.9370000000000003								All-cause mortality Weibull shape	
 	acmmortality_wb_b	numeric			86.787999999999997								All-cause mortality Weibull scale	
 	Incidence_Mortality	file			Incidence_Mortality_ONS2.csv								Incidence disribution	Must sum to 1

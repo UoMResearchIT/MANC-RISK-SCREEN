@@ -39,6 +39,30 @@ get_PSA_input_limits <- function() {
   hi <- apply(PSA_config[, var_names], 2, max)
   step <- input_config_table[var_names, "step"]
 
+
+  # Handle unit-conversion cases
+  units <- as.factor(input_config_table[var_names, "unit"])
+  units <- addNA(units)
+
+  KNOWN <- c("5yr","mm","1/yr",NA)
+
+  uk <- setdiff(units,KNOWN)
+  if ( !is.empty(uk) ){
+    warning("Unknown unit(s):",stringr::str_flatten_comma(dQuote(uk)))
+  }
+
+  parse_units <- function(x) {
+    x <- dplyr::case_when(
+      units == "5yr" ~ exp(-5*exp(x)),
+      .default = x
+    )
+  }
+
+  lo <- parse_units(lo)
+  hi <- parse_units(hi)
+
+  list[lo,hi] <- list(pmin(lo,hi),pmax(lo,hi))
+
   lo <- mapply(custom.round, lo, step, MoreArgs = list(op = ceiling))
   hi <- mapply(custom.round, hi, step, MoreArgs = list(op = floor))
 
