@@ -1,5 +1,6 @@
 library("parallel")
 library("mgcv")
+library("tidyverse")
 
 screen_strategies<-c(0,1,2,3,4,9)
 screen_strategy<-0
@@ -27,6 +28,7 @@ for (i in 1:10){
  psaresults<-rbind(psaresults,results)
 }
 }
+
 
 psaresults[,29][psaresults[,29]==0]<-"noscreening"
 psaresults[,29][psaresults[,29]==1]<-"procas"
@@ -88,4 +90,5 @@ modC <- bam(data = psaresults,
               alternative)
 summary(modC)
 
-save(modC,file="Costmodel.Rdata")
+modC[2:43]<-NULL
+saveRDS(modC,file="costmodelslim.RDS")
