@@ -11,12 +11,12 @@ test_that("parse_units works", {
   expect_equal(x, parse_units(x, "mm", "ui2psa"))
 })
 
-# NOTE: `load_GAM_model`, `input_list`, and `model_input_names` are tested
+# NOTE: `load_*_gam`, `input_list`, and `model_input_names` are tested
 # (indirectly) in test-data.R
 
 test_that("model_input_names", {
 
-  modQ <- load_GAM_model()
+  modQ <- load_qualy_gam()
   mod_vars <- names(modQ$var.summary)
 
   ui_vars <- input_list("basic")

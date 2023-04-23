@@ -7,13 +7,15 @@
 #' @noRd
 run_basic_model <- function(input = NULL) {
 
-  modQ <- load_gam_model()
+  modQ <- load_qualy_gam()
+  modC <- load_cost_gam()
+
   data("input_config_table")
 
   ui_vars <- input_list("basic")
 
-  if ( is.null(input) ){
-    input_vector <- input_config_table[ui_vsars,"default"]
+  if ( is.null(input) ) {
+    input_vector <- input_config_table[ui_vars,"default"]
   } else {
     input_vector <- reactiveValuesToList(input)[ui_vars]
   }
@@ -28,14 +30,15 @@ run_basic_model <- function(input = NULL) {
 
   # replicate for all strategies
   strategies <- as.factor(levels(modQ$var.summary$alternative))
-  df <- data.frame(alternative = strategies)
-  df[,mapped_vars] <- input_vector
+  input_df <- data.frame(alternative = strategies)
+  input_df[,mapped_vars] <- input_vector
 
-  #Predict the QALYs for each strategy
-  #This is not giving sensible values at the moment so I need to fix
-  #Should be ok for now
-  qualys <- mgcv::predict.bam(modQ,df)
-  names(qualys) <- strategies
+  #Predict the QALYs and costs for each strategy
+  qualys <- mgcv::predict.bam(modQ,input_df)
+  cost <- mgcv::predict.bam(modC,input_df)
 
-  return( qualys )
+  output_df <- data.frame(qualy = qualys,cost = cost)
+  colnames(output_df) <- strategies
+
+  return( output_df )
 }

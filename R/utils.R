@@ -17,7 +17,7 @@ input_list <- function(key) {
 }
 
 
-load_gam_model <- function() {
+load_qualy_gam <- function() {
 
   if ( exists("modQ", .GlobalEnv) ) {
 
@@ -28,6 +28,20 @@ load_gam_model <- function() {
     setwd(here::here())
     modQ <- readRDS("data/QALYmodelslim.RDS")
     assign("modQ",modQ, .GlobalEnv)
+  }
+}
+
+load_cost_gam <- function() {
+
+  if ( exists("modC", .GlobalEnv) ) {
+
+    modC <- get("modC", .GlobalEnv)
+
+  } else {
+
+    setwd(here::here())
+    modC <- readRDS("data/costmodelslim.RDS")
+    assign("modC",modC, .GlobalEnv)
   }
 }
 
