@@ -1,12 +1,19 @@
-
+#' @description set input limits based on PSA config
+#'
+#' @details reads rel_min and `rel_max` fields from `input_config_table`
+#' (set by `get_PSA_input_limits`), and calls required functions
+#' `updateSliderInput`, `updateNumericInput`, etc.
+#'
 #' @import gsubfn
 #' @import glue
-load_input_config <- function(session) {
+#' @noRd
+load_input_config <- function(session, dryrun = F) {
 
   data("input_config_table")
+
   COL_NAMES <- c("id", "type", "fixed", "default", "rel_min", "rel_max", "abs_min", "abs_max", "description", "step")
   stopifnot(is.data.frame(input_config_table) &&
-    rlang::is_empty(setdiff(COL_NAMES, colnames(input_config_table))))
+             rlang::is_empty(setdiff(COL_NAMES, colnames(input_config_table))))
 
   ok <- input_config_table$valid & !input_config_table$fixed
 
@@ -17,10 +24,7 @@ load_input_config <- function(session) {
     line <- as.list(input_config_table[j, COL_NAMES])
     list[fun,args] <- parse_input(line)
 
-    if ( !rlang::is_empty(args) ){
-
-      # DEBUG
-      # cat(file = stderr(),line$id, "\n", line$type, "\n", disp.str(args), "\n\n")
+    if ( !rlang::is_empty(args) & !dryrun ){
 
       args$inputId <- line$id
       args$session <- session

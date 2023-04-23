@@ -1,0 +1,7 @@
+linters: linters_with_defaults(
+    line_length_linter(120),
+    commented_code_linter = NULL,
+    single_quotes_linter = NULL,
+    spaces_inside_linter = NULL
+  )
+exclusions: list()
