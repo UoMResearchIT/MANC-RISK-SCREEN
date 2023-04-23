@@ -319,7 +319,7 @@ parse_numeric <- function(line) {
   }
 
   if (!is.empty(line$default)) {
-    line$default <- custom.round(line$default, line$step)
+    line$default <- custom_round(line$default, line$step)
     args <- c(args, "value = {line$default}")
   }
 
@@ -346,8 +346,8 @@ parse_numeric <- function(line) {
     rel_lim <- as.numeric(ifelse(is.numeric.ish(rel_lim), rel_lim, NA))
     abs_lim <- as.numeric(ifelse(is.numeric.ish(abs_lim), abs_lim, NA))
 
-    rel_lim <- custom.round(rel_lim, line$step, round_op)
-    abs_lim <- custom.round(abs_lim, line$step, round_op)
+    rel_lim <- custom_round(rel_lim, line$step, round_op)
+    abs_lim <- custom_round(abs_lim, line$step, round_op)
 
     if (!is.na(abs_lim) && !is.na(rel_lim)) {
       rel_lim <- min(abs_lim, rel_lim)
