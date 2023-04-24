@@ -15,3 +15,5 @@ $run_dev.*
 ^results$
 ^app\.R$
 ^rsconnect$
+^.lintr
+^.Rhistory

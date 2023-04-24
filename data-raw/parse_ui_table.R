@@ -242,8 +242,11 @@ parse_line <- function(line) {
 
   # Escape unicode characters
   line$description <- stringi::stri_escape_unicode(line$description)
-  if ( is.empty(line$symbol) ) {
+  if ( !is.empty(line$symbol) ) {
     line$symbol <- stringi::stri_escape_unicode(line$symbol)
+  }
+  if ( !is.empty(line$unit) ) {
+    line$unit <- stringi::stri_escape_unicode(line$unit)
   }
 
   if (grepl("num|slider", line$type, ignore.case = T)) {
