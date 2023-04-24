@@ -65,10 +65,11 @@ Screening Performance
 	density_cutoff				3			1	4				Breast density cut-offs for supplemental sreening (VDG groups 3 and 4)	
 														
 Cost data														
-	cost_strat				8.4499999999999993			0	200			£	Cost of stratification process	
-	cost_screen				60.56			0	200			£	Cost of screening	
-	cost_follow_up				106			0	500			£	Cost of follow up	
-	cost_biop				290			0	1000			£	Cost of biopsy	
+	cost_strat	slider	x		8.4499999999999993			0	200			£	Cost of stratification process	
+	costvar	slider	x		0.1			0	1				What is this, is it even used???	
+	costscreen	slider	x		60.56			0	200			£	Cost of screening	
+	cost_follow_up	slider	x		106			0	500			£	Cost of follow up	
+	cost_biop	slider	x		290			0	1000			£	Cost of biopsy	
 	cost_DCIS				9840			0	50000			£	Cost of treating ductal carcinoma in situ	
 	cost_US				52			0	200			£	Cost of ultrasonography	
 	cost_MRI				114			0	500			£	Cost of MRI	
