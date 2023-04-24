@@ -33,3 +33,16 @@ test_that("model_input_names", {
   }
 
 })
+
+test_that("custom_round", {
+  expect_error(custom_round(seq(1,3),seq(1,2)))
+  expect_no_error( custom_round(seq(1,3), 1) )
+  expect_no_error( custom_round(seq(1,3), step = NULL) )
+  expect_no_error( custom_round(seq(1,3), c(NA,1,0.1)) )
+
+  expect_equal(custom_round(1.234, op = round, digits = 2), 1.2)
+  expect_equal(custom_round(1.8, op = floor, digits = 1), 1)
+  expect_equal(custom_round(1.234, op = ceiling, digits = 2), 1.3)
+
+  expect_equal(custom_round(1.234, op = round, digits = 2), 1.2)
+})

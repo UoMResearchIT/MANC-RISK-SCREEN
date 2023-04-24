@@ -42,7 +42,9 @@ model_input_names <- function(ui_vars) {
 #' @noRd
 parse_units <- function(x, units, direction) {
 
-  KNOWN <- c("5yr", "mm", "1/yr", "NA")
+  stopifnot( direction %in% c('psa2ui','ui2psa') )
+
+  KNOWN <- c("5yr", "mm", "1/yr", "\\u00a3", "NA")
 
   units[ is.na(units) ] <- "NA"
   units <- droplevels( as.factor(units) )
@@ -64,6 +66,7 @@ parse_units <- function(x, units, direction) {
     if ( !(u %in% KNOWN) ) next
 
     idx <- (units == u)
+    if ( !any(idx) ) next
 
     if ( u == "5yr" ) {
       x[idx] <- switch( direction,
@@ -77,18 +80,27 @@ parse_units <- function(x, units, direction) {
   return(x)
 }
 
-custom_round <- function(x, step, op = round, digits = 4) {
+custom_round <- function(x, step = NULL, op = round, digits = 4) {
+
   stopifnot(is.numeric(x))
+  stopifnot(digits > 0)
+
+  trivial <- is.na(x) | x == 0
+  if ( all(trivial) ) return(x)
+
+  if ( is.null(step) ) step <- NA
+  if ( length(x) > 1 && length(step) == 1 ) {
+    step <- rep_len(step, length(x))
+  } else {
+    stopifnot(length(step) == length(x))
+  }
+
+  def <- is.na(step)
+  if ( any(def) ) {
+    step[def] <- 10^(ceiling(log10(abs(x[def]))) - digits)
+  }
   stopifnot(is.numeric(step))
-
-  if (is.na(x) || x == 0) {
-    return(x)
-  }
-
-  if (is.na(step)) {
-    step <- 10^(ceiling(log10(abs(x))) - digits)
-  }
-  stopifnot(step > 0)
+  stopifnot( all(step > 0) )
 
   return(op(x / step) * step)
 }

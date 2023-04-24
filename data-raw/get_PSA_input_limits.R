@@ -21,17 +21,23 @@ get_PSA_input_limits <- function(.MIN_STEPS = 10) {
 
   # Handle unit-conversion cases (mismatch between UI and PSA_config)
   units <- input_config_table[var_names, "unit"]
-  lo <- parse_units(lo, units, direction='PSA2human')
-  hi <- parse_units(lo, units, direction='PSA2human')
+  lo <- parse_units(lo, units, direction = 'psa2ui')
+  hi <- parse_units(hi, units, direction = 'psa2ui')
 
   # Make sure lo < hi (might not be the case after unit conversion)
-  list[lo,hi] <- list(pmin(lo,hi),pmax(lo,hi))
+  list[lo, hi] <- list( pmin(lo, hi), pmax(lo, hi) )
 
   step <- input_config_table[var_names, "step"]
 
-  steps_too_small <- (hi - lo)/step < .MIN_STEPS
-  if ( any(steps_too_small) ){
-    browser()
+  steps_too_small <- (hi - lo) / step < .MIN_STEPS
+  steps_too_small[is.na(steps_too_small)] <- FALSE
+
+  if ( any(steps_too_small) ) {
+    dx <- (hi - lo)[steps_too_small] / .MIN_STEPS
+    step[steps_too_small] <- 10^(ceiling(log10(dx) - 1))
+
+    warning('Reduced step size for ',
+            stringr::str_flatten_comma(var_names[steps_too_small]))
   }
 
   # Round to nice values
@@ -41,6 +47,6 @@ get_PSA_input_limits <- function(.MIN_STEPS = 10) {
   input_config_table[var_names, "rel_min"] <- lo
   input_config_table[var_names, "rel_max"] <- hi
 
-  usethis::use_data(input_config_table, internal = F, overwrite = T)
+  usethis::use_data(input_config_table, internal = FALSE, overwrite = TRUE)
 }
 get_PSA_input_limits()
