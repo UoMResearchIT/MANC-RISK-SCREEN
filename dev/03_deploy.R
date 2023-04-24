@@ -2,7 +2,7 @@
 UPDATE_CSV = T
 UPDATE_CONFIG = T
 DEPLOY = F
-CHECK = T
+CHECK = F
 
 devtools::load_all()
 
@@ -18,11 +18,10 @@ if ( UPDATE_CONFIG ){
   source("data-raw/parse_ui_table.R")
 
   # Update PSA_config table (used to set soft bounds for basic inputs)
-  if ( !file.exists("data/PSA_config.rda") ) {
 
-    source("data-raw/PSA_config.R")
-    # batch-run model, fit GAM?
-  }
+  source("data-raw/PSA_config.R")
+  PSA_all_p <- draw_psa_runs(version = '1.1', 1000, psa_prefix = FALSE, write_out=TRUE )
+  # batch-run model, fit GAM?
 
   # Update basic input soft bounds based on PSA_config, update `input_config_table`
   source("data-raw/get_PSA_input_limits.R")

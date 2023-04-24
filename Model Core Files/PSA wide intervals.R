@@ -244,85 +244,23 @@ if(gensample==1){
 
   #Set growth rate for tumours
   names(risksample)[4:14]<-paste(c("Risk Group","VDG","MRI Screening","US Screening","Risk Predicted","Feedback","Interval Change","Life Expectancy","Cancer","Clinical Detection Size","Growth Rate"))
-  
-  #survmvn<-data.frame(c(-5.46208,-5.2077,-5.8016),c(-3.8163,-3.75901,-3.8811),c(-2.72264,-2.66053,-2.78617))
-  #survcovmat<-cov(survmvn)
-  #survmeans<-c(survmvn[1,1],survmvn[1,2],survmvn[1,3])
-  #PSA_gamma_survival<-mvrnorm(mcruns,survmeans,survcovmat)
-  
-  PSA_gamma_survival<-data.frame(runif(mcruns,-6,-3),runif(mcruns,-5,-1),runif(mcruns,-3,-0.01))
-  
-  #Metatstatic survival parameters
- # metmvn<-data.frame(c(-1.78723,-1.67922,-1.89434),c(-1.38762,-1.33512,-1.49956),c(-1.01051,-0.93338,-1.08304))
-  #metmat<-cov(metmvn)
-  #metmeans<-c(metmvn[1,1],metmvn[1,2],metmvn[1,3])
-  #PSA_meta_survival<-mvrnorm(mcruns,metmeans,metmat)
 
-  PSA_meta_survival<-data.frame(runif(mcruns,-2.5,-0.5),runif(mcruns,-2,-0.3),runif(mcruns,-1.5,-0.1))
-    
-  #Mammography with sensitivity conditional on tumour diameter parameters W-F
-  PSA_beta1 <- rnorm(mcruns,1.47,0.1)
-  PSA_beta2 <- rnorm(mcruns,6.51,0.5)
+  # Draw Monte Carlo samples
+  PSA_all_p <- draw_psa_runs(version = 'wide', mcruns, write_out = FALSE)
 
-  #Mammography sensitivity by volpara density grade from PREVENTICON
-  PSA_Sen_VDG <- data.frame(rbeta(mcruns,96,16),rbeta(mcruns,298,86),rbeta(mcruns,212,93),rbeta(mcruns,61,39))
-  Sen_VDG_av <- 0.757
+  masterframe<-data.frame(matrix(nrow=inum*mcruns,ncol=length(risksample[1,])+length(PSA_all_p[1,])))
+  masterframe[,1:14]<-risksample
+  masterframe[,15:40]<-PSA_all_p
+  masterframe[,41]<-(rep(1:chunks,times=round(length(masterframe[,1])/chunks)))
+  masterframe<-masterframe %>% filter(masterframe[,11]>=50)
+  risksplit<-split(masterframe,masterframe[,41])
+  rm(masterframe,risksample,PSA_all_p,risk_mat)
 
-  #Supplemental Screening
-  PSA_MRI_cdr <- rbeta(mcruns,99.495,19799.5) #CDR for MRI in Mammo negative women (incremental)
-  PSA_US_cdr <- rbeta(mcruns,35.89,11927) #CDR for US in Mammo negative women (incremental)
-
-  #Set tumour growth rate parameters
-  PSA_log_norm_mean <- runif(mcruns,0.8,1.2)
-  PSA_log_norm_sd <- rnorm(mcruns,1.31,0.11)
-
-  #Costs
-  PSA_cost_strat<-rlnorm(mcruns,2.13387381,0.06349671)
-  PSA_costvar<-rnorm(mcruns,0,0.1020408)
-  PSA_costscreen<-rnorm(mcruns,0,0.1020408)
-  PSA_cost_follow_up<-rnorm(mcruns,0,0.1020408)
-  PSA_cost_biop<-rnorm(mcruns,0,0.1020408)
-  PSA_cost_US<-rnorm(mcruns,0,0.1020408)
-  PSA_cost_MRI<-rnorm(mcruns,0,0.1020408)
-
-  #Generate utility draws
-
- # utilmat<-data.frame(c(1-0.82,1-0.81,1-0.83),c(1-0.75,1-0.73,1-0.77))
-  #lnutilmat<-log(utilmat)
-  #covutil<-cov(lnutilmat)
-  #utilmeans<-c(log(1-0.82),log(1-0.75))
-  #PSA_util<-1-exp(mvrnorm(mcruns,utilmeans,covutil))
-
-  PSA_util<-data.frame(runif(mcruns,0.6,0.9),runif(mcruns,0.5,0.8))
-
-  mcid<-c(1:mcruns)
-
-  PSA_all_p<-cbind(PSA_gamma_survival,PSA_meta_survival,PSA_beta1,PSA_beta2,
-                   PSA_Sen_VDG,PSA_MRI_cdr,PSA_US_cdr,PSA_log_norm_mean,
-                   PSA_log_norm_sd,PSA_cost_strat,PSA_costvar,PSA_util,PSA_costscreen,
-                   PSA_cost_follow_up,PSA_cost_biop,PSA_cost_US,PSA_cost_MRI,mcid)
-  PSA_all_p<-as.data.frame(PSA_all_p)
-  colnames(PSA_all_p)<-c("PSA_gamma_survival_1","PSA_gamma_survival_2","PSA_gamma_survival_3",
-                         "PSA_meta_survival_54","PSA_meta_survival_74","PSA_meta_survival_99",
-                         "PSA_beta_1","PSA_beta_2",'PSA_VDG1_sen','PSA_VDG2_sen',
-                         'PSA_VDG3_sen', 'PSA_VDG4_sen',"PSA_MRI_cdr","PSA_US_cdr",
-                         "PSA_log_norm_mean","PSA_log_norm_sd","PSA_cost_strat","PSA_costvar",
-                         "PSA_util_1to3","PSA_util_4","PSA_costscreen","PSA_cost_follow_up",
-                         "PSA_cost_biop","PSA_cost_US","PSA_cost_MRI","mcid")
-
-masterframe<-data.frame(matrix(nrow=inum*mcruns,ncol=length(risksample[1,])+length(PSA_all_p[1,])))
-masterframe[,1:14]<-risksample
-masterframe[,15:40]<-PSA_all_p
-masterframe[,41]<-(rep(1:chunks,times=round(length(masterframe[,1])/chunks)))
-masterframe<-masterframe %>% filter(masterframe[,11]>=50)
-risksplit<-split(masterframe,masterframe[,41])
-rm(masterframe,risksample,PSA_all_p,risk_mat)
-
-#Save risk sample in chunks
-for(i in 1:chunks){
-  splitsample<-as.data.frame(risksplit[i])
-  save(splitsample,file = paste("Risksample/risksample_",i,".Rdata",sep=""))
-}
+  #Save risk sample in chunks
+  for(i in 1:chunks){
+    splitsample<-as.data.frame(risksplit[i])
+    save(splitsample,file = paste("Risksample/risksample_",i,".Rdata",sep=""))
+  }
 }
 
 ################Outer Individual sampling loop##############################
