@@ -1,7 +1,7 @@
 
-UPDATE_CSV = F
-UPDATE_CONFIG = F
-DEPLOY = T
+UPDATE_CSV = T
+UPDATE_CONFIG = T
+DEPLOY = F
 CHECK = T
 
 devtools::load_all()
@@ -26,6 +26,13 @@ if ( UPDATE_CONFIG ){
 
   # Update basic input soft bounds based on PSA_config, update `input_config_table`
   source("data-raw/get_PSA_input_limits.R")
+
+  # PROVISIONAL?:
+  qualy_model_obj <- readRDS("Model Core Files/QALYmodelslim.RDS")
+  usethis::use_data(qualy_model_obj, internal = F, overwrite = T)
+
+  cost_model_obj <- readRDS("Model Core Files/costmodelslim.RDS")
+  usethis::use_data(cost_model_obj, internal = F, overwrite = T)
 }
 
 # Run checks

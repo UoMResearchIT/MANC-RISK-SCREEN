@@ -40,24 +40,24 @@ test_that("PSA_config matches input_list(basic)", {
 })
 
 test_that("QUALY GAM model-object loads ok",{
-  modQ <- load_qualy_gam()
-  expect_s3_class(modQ,"gam")
+  data("qualy_model_obj")
+  expect_s3_class(qualy_model_obj,"gam")
 })
 
 test_that("COSTS GAM model-object loads ok",{
-  modC <- load_cost_gam()
-  expect_s3_class(modC,"gam")
+  modC <- data("cost_model_obj")
+  expect_s3_class(cost_model_obj,"gam")
 })
 
 test_that("GAM model-objects match PSA_config",{
 
   IMPLICIT <- c("alternative") # added by run_basic_model
 
-  modQ <- load_qualy_gam()
-  mod_vars <- names(modQ$var.summary)
+  data("qualy_model_obj")
+  mod_vars <- names(qualy_model_obj$var.summary)
 
-  modC <- load_cost_gam()
-  expect_setequal(mod_vars,names(modC$var.summary))
+  data("cost_model_obj")
+  expect_setequal(mod_vars,names(cost_model_obj$var.summary))
 
   data("PSA_config")
   psa_vars <- colnames(PSA_config)

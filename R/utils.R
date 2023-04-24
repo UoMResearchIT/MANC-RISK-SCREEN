@@ -16,35 +16,6 @@ input_list <- function(key) {
   return(input_config_table$id[subset])
 }
 
-
-load_qualy_gam <- function() {
-
-  if ( exists("modQ", .GlobalEnv) ) {
-
-    modQ <- get("modQ", .GlobalEnv)
-
-  } else {
-
-    setwd(here::here())
-    modQ <- readRDS("data/QALYmodelslim.RDS")
-    assign("modQ",modQ, .GlobalEnv)
-  }
-}
-
-load_cost_gam <- function() {
-
-  if ( exists("modC", .GlobalEnv) ) {
-
-    modC <- get("modC", .GlobalEnv)
-
-  } else {
-
-    setwd(here::here())
-    modC <- readRDS("data/costmodelslim.RDS")
-    assign("modC",modC, .GlobalEnv)
-  }
-}
-
 #' map input IDs to model variable names
 #' @param ui_vars list of input ID's, e.g. input_list("basic")
 #' @return variable names as used in GAM model

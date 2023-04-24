@@ -16,8 +16,8 @@ test_that("parse_units works", {
 
 test_that("model_input_names", {
 
-  modQ <- load_qualy_gam()
-  mod_vars <- names(modQ$var.summary)
+  data("cost_model_obj")
+  mod_vars <- names(cost_model_obj$var.summary)
 
   ui_vars <- input_list("basic")
   mapped_vars <- model_input_names(ui_vars)

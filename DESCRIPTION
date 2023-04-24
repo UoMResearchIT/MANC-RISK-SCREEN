@@ -34,11 +34,13 @@ Imports:
     shinyjs,
     shinyMatrix,
     tibble,
-    tidyr
+    tidyr,
+    mgcv
 Suggests: 
     spelling,
     stringr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    here
 Remotes:
     UoMResearchIT/r-shinysender,
     yonicd/covrpage
