@@ -36,8 +36,8 @@ run_basic_model <- function(input = NULL) {
   qualys <- mgcv::predict.bam(qualy_model_obj,input_df)
   cost <- mgcv::predict.bam(cost_model_obj,input_df)
 
-  output_df <- data.frame(qualy = qualys,cost = cost)
-  colnames(output_df) <- strategies
+  output_df <- data.frame(qualy = qualys, cost = cost)
+  rownames(output_df) <- strategies
 
   return( output_df )
 }

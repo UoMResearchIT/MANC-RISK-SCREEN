@@ -26,16 +26,6 @@ test_that("PSA_config matches input_list(basic)", {
   basic_inputs <- input_list("basic")
   var_names <- colnames(PSA_config)
 
-  conflicts <- setdiff(basic_inputs, var_names)
-  if (!rlang::is_empty(conflicts)) {
-    warning("PSA inputs missing from PSA config: ", stringr::str_flatten_comma(conflicts))
-  }
-
-  conflicts <- setdiff(var_names, basic_inputs)
-  if (!rlang::is_empty(conflicts)) {
-    warning("Variables in PSA config missing from basic inputs: ", stringr::str_flatten_comma(conflicts))
-  }
-
   expect_setequal( input_list("basic"), colnames(PSA_config) )
 })
 
@@ -54,21 +44,17 @@ test_that("GAM model-objects match PSA_config",{
   IMPLICIT <- c("alternative") # added by run_basic_model
 
   data("qualy_model_obj")
-  mod_vars <- names(qualy_model_obj$var.summary)
+  qualy_model_vars <- names(qualy_model_obj$var.summary)
 
   data("cost_model_obj")
-  expect_setequal(mod_vars,names(cost_model_obj$var.summary))
+  cost_model_vars <- names(cost_model_obj$var.summary)
 
   data("PSA_config")
   psa_vars <- colnames(PSA_config)
+  psa_vars <- model_input_names(psa_vars) # add PSA_ prefix
+  psa_vars <- append(psa_vars, IMPLICIT)
 
-  mapped_vars <- paste("PSA", psa_vars, sep = "_")
-
-  conflicts <- setdiff(mod_vars, c(mapped_vars,IMPLICIT))
-  if (!rlang::is_empty(conflicts)) {
-    stop("Variables in GAM missing from basic inputs: ", stringr::str_flatten_comma(conflicts))
-  }
-  mapped_vars <- intersect(mapped_vars, psa_vars)
-
+  expect_subset_of(qualy_model_vars, psa_vars)
+  expect_subset_of(cost_model_vars, psa_vars)
 })
 

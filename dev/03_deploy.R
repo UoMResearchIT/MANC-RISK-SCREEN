@@ -20,7 +20,7 @@ if ( UPDATE_CONFIG ){
   # Update PSA_config table (used to set soft bounds for basic inputs)
 
   source("data-raw/PSA_config.R")
-  PSA_all_p <- draw_psa_runs(version = '1.1', 1000, psa_prefix = FALSE, write_out=TRUE )
+  draw_psa_runs(version = '1.1', 1000, psa_prefix = FALSE, write_out=TRUE )
   # batch-run model, fit GAM?
 
   # Update basic input soft bounds based on PSA_config, update `input_config_table`
