@@ -135,8 +135,8 @@ screen_detection_m <- 6.12
 screen_detection_sd <- 0.96
 
 #Mammography with sensitivity conditional on tumour diameter parameters W-F
-beta1 <- 1.47
-beta2 <- 6.51
+beta_1 <- 1.47
+beta_2 <- 6.51
 
 #Mammography sensitivity by volpara density grade from PREVENTICON
 VDG_interval<-c(4.5,7.5,15.5)

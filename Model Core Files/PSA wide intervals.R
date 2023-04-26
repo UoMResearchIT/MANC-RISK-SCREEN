@@ -122,8 +122,8 @@ screen_detection_m <- 6.12
 screen_detection_sd <- 0.96
 
 #Mammography with sensitivity conditional on tumour diameter parameters W-F
-beta1 <- 1.47
-beta2 <- 6.51
+beta_1 <- 1.47
+beta_2 <- 6.51
 
 #Mammography sensitivity by volpara density grade from PREVENTICON
 VDG_interval<-c(4.5,7.5,15.5)
@@ -315,8 +315,8 @@ for (ii in 1:chunks) {
     risk_data<-as.numeric(i)
 
     #Clinical data
-    beta1<-risk_data[21]
-    beta2<-risk_data[22]
+    beta_1<-risk_data[21]
+    beta_2<-risk_data[22]
 
     log_norm_mean<-risk_data[29]
     log_norm_sd<-risk_data[30]

@@ -63,8 +63,8 @@ draw_psa_runs <- function(version = '1.1',
   }
 
   # Mammography with sensitivity conditional on tumour diameter parameters W-F
-  PSA$beta1 <- rnorm(mcruns, 1.47, 0.1)
-  PSA$beta2 <- rnorm(mcruns, 6.51, 0.5)
+  PSA$beta_1 <- rnorm(mcruns, 1.47, 0.1)
+  PSA$beta_2 <- rnorm(mcruns, 6.51, 0.5)
 
   # Mammography sensitivity by volpara density grade from PREVENTICON
   PSA$VDG1_sen <- rbeta(mcruns, 96, 16)

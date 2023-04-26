@@ -39,7 +39,7 @@ psaresults[,29][psaresults[,29]==9]<-"fullstrat"
 
 psaresults[,29]<-as.factor(psaresults[,29])
 
-save(psaresults,file = paste("PSA/PSA_","psaresults",".Rdata",sep = "")) 
+save(psaresults,file = paste("PSA/PSA_","psaresults",".Rdata",sep = ""))
 psaresults<-psaresults[-c(15,16)]
 
 modQ <- bam(data = psaresults,
@@ -67,7 +67,7 @@ modQ[2:43]<-NULL
 saveRDS(modQ,file="QALYmodelslim.RDS")
 
 modC <- bam(data = psaresults,
-            formula = Cost ~ 
+            formula = Cost ~
               s(PSA_cost_strat, by = alternative, bs = "cr") +
               s(PSA_costvar, by = alternative, bs = "cr") +
               s(PSA_gamma_survival_1, by = alternative, bs = "cr") +
