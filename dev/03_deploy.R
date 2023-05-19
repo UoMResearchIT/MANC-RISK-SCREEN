@@ -1,8 +1,8 @@
 
 UPDATE_CSV = T
 UPDATE_CONFIG = T
+CHECK = T
 DEPLOY = F
-CHECK = F
 
 devtools::load_all()
 

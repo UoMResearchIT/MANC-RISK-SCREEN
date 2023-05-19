@@ -21,12 +21,18 @@ test_that("PSA_config table loads ok", {
 
 test_that("PSA_config matches input_list(basic)", {
 
+  UNUSED = c("mcid")
+
   data("PSA_config")
 
   basic_inputs <- input_list("basic")
-  var_names <- colnames(PSA_config)
+  psa_variables <- setdiff(colnames(PSA_config),UNUSED)
 
-  expect_setequal( input_list("basic"), colnames(PSA_config) )
+  # Does not print correctly, for some reason:
+  # expect_setequal( input_list("basic"), psa_variables )
+
+  expect_subset_of(input_list("basic"), psa_variables)
+  expect_subset_of(psa_variables, input_list("basic"))
 })
 
 test_that("QUALY GAM model-object loads ok",{

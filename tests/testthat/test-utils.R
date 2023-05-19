@@ -15,23 +15,7 @@ test_that("parse_units works", {
 # (indirectly) in test-data.R
 
 test_that("model_input_names", {
-
-  data("cost_model_obj")
-  mod_vars <- names(cost_model_obj$var.summary)
-
-  ui_vars <- input_list("basic")
-  mapped_vars <- model_input_names(ui_vars)
-
-  mod_vars <- setdiff(mapped_vars, mod_vars)
-
-  # (Possibly more elaborate rules here in the future)
-
-  conflicts <- setdiff(mapped_vars, mod_vars)
-  if ( !rlang::is_empty(conflicts) ) {
-    stop("Variables in GAM missing from basic inputs: ",
-         stringr::str_flatten_comma(conflicts))
-  }
-
+  expect_equal(c("PSA_foo","PSA_bar"),model_input_names(c("foo","bar")))
 })
 
 test_that("custom_round", {

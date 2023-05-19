@@ -4,6 +4,7 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @import shinipsum
+#' @import ggplot2
 #' @noRd
 app_server <- function(input, output, session) {
   # Your application server logic
@@ -34,14 +35,29 @@ app_server <- function(input, output, session) {
 
   output$intro_text <- renderText(random_text(nwords = 50))
 
+  output$qualy_plot <- renderPlot({
+
+    basic_output <- run_basic_model(input)
+
+    ggplot(basic_output, aes(x = row.names(basic_output), y = "qualy")) +
+      geom_bar(stat = "identity") +
+      labs(x = 'strategy')
+  })
+
+  output$cost_plot <- renderPlot({
+
+    basic_output <- run_basic_model(input)
+
+    ggplot(basic_output, aes(x = row.names(basic_output), y = "cost")) +
+      geom_bar(stat = "identity") +
+      labs(x = 'strategy')
+  })
+
   output$status <- renderPrint({
     # do.call('req',reactiveValuesToList(values)[basic_inputs])
     print(reactiveValuesToList(input)[basic_inputs])
   })
 
-  output$plot <- renderPlot({
-    random_ggplot()
-  })
   # output$print <- renderPrint({
   #   random_print("model")
   # })

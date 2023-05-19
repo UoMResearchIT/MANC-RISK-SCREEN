@@ -35,7 +35,8 @@ Imports:
     shinyMatrix,
     tibble,
     tidyr,
-    mgcv
+    mgcv,
+    ggplot2
 Suggests: 
     spelling,
     stringr,

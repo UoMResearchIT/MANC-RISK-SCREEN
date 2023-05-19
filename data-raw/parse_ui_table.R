@@ -63,7 +63,7 @@ parse_ui_table <- function() {
     "  # Customize this header later\n",
     "  shinyjs::useShinyjs(),\n",
     "  shinyFeedback::useShinyFeedback(),\n",
-    '  h1("MancRiskScreenUI"),\n',
+    '  h1( paste("MancRiskScreenUI -", packageVersion("MancRiskScreenUI")) ),\n',
     '  textOutput("intro_text"),\n\n\n'
   )
 
@@ -79,10 +79,11 @@ parse_ui_table <- function() {
   write_out(
     "\n\n",
     "  # Customize this closure later\n",
+    '  h3("Model outputs"),\n',
+    '  plotOutput("qualy_plot"),\n',
+    '  plotOutput("cost_plot"),\n',
     '  h3("Status"),\n',
     '  verbatimTextOutput("status"),\n\n',
-    '  p("This is still just a random plot:"),\n',
-    '  plotOutput("plot")\n',
     ")\n"
   )
 
