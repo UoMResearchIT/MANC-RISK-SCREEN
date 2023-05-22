@@ -17,3 +17,5 @@ $run_dev.*
 ^rsconnect$
 ^.lintr
 ^.Rhistory
+^packrat/
+^\.Rprofile$

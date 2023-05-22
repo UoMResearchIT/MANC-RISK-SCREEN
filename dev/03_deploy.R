@@ -2,7 +2,7 @@
 UPDATE_CSV = T
 UPDATE_CONFIG = T
 CHECK = T
-DEPLOY = F
+DEPLOY = T
 
 devtools::load_all()
 
