@@ -22,7 +22,7 @@ load_input_config <- function(session, dryrun = F) {
   for (j in which(ok)) {
 
     line <- as.list(input_config_table[j, COL_NAMES])
-    list[fun,args] <- parse_input(line)
+    list[fun,args] <- parse_line(line)
 
     if ( !rlang::is_empty(args) & !dryrun ){
 
@@ -34,7 +34,7 @@ load_input_config <- function(session, dryrun = F) {
   }
 }
 
-parse_input <- function(line) {
+parse_line <- function(line) {
 
   typ = parse_type(line$type)
 

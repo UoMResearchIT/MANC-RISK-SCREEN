@@ -30,7 +30,6 @@ model_input_names <- function(ui_vars) {
   return(mapped_vars)
 }
 
-
 #' Convert UI values to PSAmodel variables, and vice-versa
 #'
 #' @param x vector of input values

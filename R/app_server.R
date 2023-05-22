@@ -35,27 +35,32 @@ app_server <- function(input, output, session) {
 
   output$intro_text <- renderText(random_text(nwords = 50))
 
+  mdl_inputs <- reactive( parse_inputs(input) )
+  mdl_output <- reactive( run_basic_model(mdl_inputs()))
+
   output$qualy_plot <- renderPlot({
-
-    basic_output <- run_basic_model(input)
-
-    ggplot(basic_output, aes(x = row.names(basic_output), y = "qualy")) +
-      geom_bar(stat = "identity") +
-      labs(x = 'strategy')
+    df <- mdl_output()
+    ggplot(data = df, aes(x = row.names(df), y = qualy)) +
+      geom_bar(stat="identity", fill="steelblue") +
+      labs(x = 'strategy') +
+      geom_text(aes(label=custom_round(df$qualy)), vjust=-0.3, size=3.5) +
+      theme_minimal()
   })
 
   output$cost_plot <- renderPlot({
-
-    basic_output <- run_basic_model(input)
-
-    ggplot(basic_output, aes(x = row.names(basic_output), y = "cost")) +
-      geom_bar(stat = "identity") +
-      labs(x = 'strategy')
+    df <- mdl_output()
+    ggplot(data = df, aes(x = row.names(df), y = cost)) +
+      geom_bar(stat="identity", fill="steelblue") +
+      labs(x = 'strategy') +
+      geom_text(aes(label=custom_round(df$cost)), vjust=-0.3, size=3.5) +
+      theme_minimal()
   })
 
   output$status <- renderPrint({
     # do.call('req',reactiveValuesToList(values)[basic_inputs])
-    print(reactiveValuesToList(input)[basic_inputs])
+    # print(reactiveValuesToList(input)[basic_inputs])
+    print(t(data.frame(mdl_inputs())))
+    print(mdl_output())
   })
 
   # output$print <- renderPrint({
