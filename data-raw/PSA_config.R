@@ -110,6 +110,25 @@ draw_psa_runs <- function(version = '1.1',
     PSA[,c("util_1to3", "util_4")] <- 1 - exp(MASS::mvrnorm(mcruns, utilmeans, covutil))
   }
 
+  # Ensure backwards compatibility (code that expects columns in specific order)
+  if ( version %in% c('1.1','wide') ) {
+    col_order <- c("gamma_survival_1","gamma_survival_2","gamma_survival_3",
+                   "meta_survival_54","meta_survival_74","meta_survival_99",
+                   "beta_1","beta_2","VDG1_sen","VDG2_sen",
+                   "VDG3_sen", "VDG4_sen","MRI_cdr","US_cdr",
+                   "log_norm_mean","log_norm_sd","cost_strat","costvar",
+                   "util_1to3","util_4","costscreen","cost_follow_up",
+                   "cost_biop","cost_US","cost_MRI","mcid")
+  } else {
+    col_order <- c("gamma_survival_1","gamma_survival_2","gamma_survival_3",
+                   "meta_survival_54","meta_survival_74","meta_survival_99",
+                   "beta_1","beta_2","VDG1_sen","VDG2_sen",
+                   "VDG3_sen", "VDG4_sen","MRI_cdr","US_cdr",
+                   "log_norm_mean","log_norm_sd","cost_strat","costvar",
+                   "util_1to3","util_4")
+  }
+  PSA <- PSA[,col_order]
+
   # Save to data/PSA_config.rda
   if ( write_out ) {
     PSA_config <- PSA
@@ -119,7 +138,7 @@ draw_psa_runs <- function(version = '1.1',
   # Use column names { mcid, PSA_var1, PSA_var2, ... }
   if ( psa_prefix ) {
     names <- colnames(PSA)
-    prefixed <- (names != 'mcid')
+    prefixed <- (names != "mcid")
     names[prefixed] <- paste("PSA", names[prefixed], sep = "_")
     colnames(PSA) <- names
   }
