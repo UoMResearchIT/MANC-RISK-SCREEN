@@ -32,8 +32,7 @@
 #'   \item{abs_min}{ hard minimum (read from `input_config.csv`) }
 #'   \item{abs_max}{ hard maximum (read from `input_config.csv`) }
 #'   \item{step}{ used for numeric & slider inputs }
-#'   \item{symbol}{ currently unused }
-#'   \item{unit}{ currently unused }
+#'   \item{unit}{ used to allow conversion between PSA variables and UI fields, see `utils.R/parse_units` }
 #'   \item{notes}{ currently unused }
 #'   \item{valid}{ boolean, has the input row been parsed successfully?}
 #'   ...

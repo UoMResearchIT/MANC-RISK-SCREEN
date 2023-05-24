@@ -34,16 +34,17 @@ parse_inputs <- function(input = NULL) {
   data("input_config_table")
 
   ui_vars <- input_list("basic")
+  defaults <- input_config_table[ui_vars,"default"]
 
   if ( is.null(input) ) {
-    input_vector <- input_config_table[ui_vars,"default"]
+    input_vector <- defaults
   } else {
     input_vector <- reactiveValuesToList(input)[ui_vars]
   }
 
   # Resolve change of units, e.g. 5-year-survival to exponential param.
   units <- input_config_table[ui_vars,'unit']
-  input_vector <- parse_units(input_vector,units,'ui2psa')
+  input_vector <- parse_units(input_vector,units,'ui2psa',defaults)
 
   # Resolve change of names
   mapped_vars <- model_input_names(ui_vars)

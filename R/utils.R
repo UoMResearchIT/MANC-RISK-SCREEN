@@ -33,17 +33,18 @@ model_input_names <- function(ui_vars) {
 #' Convert UI values to PSAmodel variables, and vice-versa
 #'
 #' @param x vector of input values
-#' @param units {"5yr","mm","1/yr",NA} of length(x) (or scalar)
+#' @param units {"5yr","rel","pm", NA} of length(x) (or scalar)
 #' @param direction {'psa2ui' or 'ui2psa'}
+#' @param y vector of reference values
 #'
 #' @return vector of converted values
 #'
 #' @noRd
-parse_units <- function(x, units, direction) {
+parse_units <- function(x, units, direction, y = NULL) {
 
   stopifnot( direction %in% c('psa2ui','ui2psa') )
 
-  KNOWN <- c("5yr", "mm", "1/yr", "\\u00a3", "NA")
+  KNOWN <- c("5yr", "rel", "pm", "NA")
 
   units[ is.na(units) ] <- "NA"
   units <- droplevels( as.factor(units) )
@@ -72,8 +73,25 @@ parse_units <- function(x, units, direction) {
                         'psa2ui' = exp( -5 * exp(x0[idx]) ),
                         'ui2psa' = log( -log(x0[idx]) / 5 ) )
 
-    } # else if ( u == "some other unit" ) {
-      #   x[idx] <- ...
+    } else if ( u == "pm" ) {
+      x[idx] <- switch( direction,
+                        'psa2ui' = x0[idx]*1000,
+                        'ui2psa' = x0[idx]/1000 )
+
+    } else if ( u == "rel" ) {
+
+      stopifnot(!is.null(y))
+      y = unlist(y)
+      if ( length(y) == 1 && length(x) > 1) {
+        y <- rep_len(y, length(x))
+      } else {
+        stopifnot(length(y) == length(x))
+      }
+
+      x[idx] <- switch( direction,
+                        'psa2ui' = y[idx]*( 1 + x0[idx] ),
+                        'ui2psa' = x0[idx]/y[idx] - 1 )
+    }
   }
 
   return(x)

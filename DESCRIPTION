@@ -1,6 +1,6 @@
 Package: MancRiskScreenUI
 Title: Manchester-Breast-Cancer-Model
-Version: 0.0.0.9000
+Version: 0.2.0.0
 Authors@R: c(
     person("Martin", "Herrerias", , "martin.herreriasazcue@manchester.ac.uk", role = "cre"),
     person("Stuart", "Wright", role = "aut"),
@@ -19,7 +19,7 @@ License: MIT + file LICENSE
 URL: https://github.com/UoMResearchIT/MANC-RISK-SCREEN
 BugReports: https://github.com/UoMResearchIT/MANC-RISK-SCREEN/issues
 Depends:
-    R (>= 2.10)
+    R (>= 4.2)
 Imports: 
     config (>= 0.3.1),
     dplyr,

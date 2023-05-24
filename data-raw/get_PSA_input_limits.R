@@ -20,20 +20,20 @@ get_PSA_input_limits <- function(.MIN_STEPS = 10) {
   hi <- apply(PSA_config[, var_names], 2, max)
 
   def <- input_config_table[var_names, "default"]
-  out_of_bounds <- !(def > lo & def < hi)
 
+  # Handle unit-conversion cases (mismatch between UI and PSA_config)
+  units <- input_config_table[var_names, "unit"]
+  lo <- parse_units(lo, units, direction = 'psa2ui', def)
+  hi <- parse_units(hi, units, direction = 'psa2ui', def)
+
+  # Make sure lo < hi (might not be the case after unit conversion)
+  list[lo, hi] <- list( pmin(lo, hi), pmax(lo, hi) )
+
+  out_of_bounds <- !(def > lo & def < hi)
   if ( any(out_of_bounds) ) {
     warning('Inconsistent PSA range for ',
             stringr::str_flatten_comma(var_names[out_of_bounds]))
   }
-
-  # Handle unit-conversion cases (mismatch between UI and PSA_config)
-  units <- input_config_table[var_names, "unit"]
-  lo <- parse_units(lo, units, direction = 'psa2ui')
-  hi <- parse_units(hi, units, direction = 'psa2ui')
-
-  # Make sure lo < hi (might not be the case after unit conversion)
-  list[lo, hi] <- list( pmin(lo, hi), pmax(lo, hi) )
 
   step <- input_config_table[var_names, "step"]
 

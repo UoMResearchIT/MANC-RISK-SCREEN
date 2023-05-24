@@ -7,8 +7,12 @@ test_that("parse_units works", {
   # back-and-forth conversion: exponential-parameter <-> 5-year-survival
   x <- c(0.7, 0.8, 0.9)
   expect_equal(x, parse_units(parse_units(x, "5yr", "ui2psa"), "5yr", "psa2ui") )
+  expect_equal(x, parse_units(parse_units(x, "pm", "ui2psa"), "pm", "psa2ui") )
+  expect_equal(x, parse_units(parse_units(x, "rel", "ui2psa", 42), "rel", "psa2ui", 42) )
 
-  expect_equal(x, parse_units(x, "mm", "ui2psa"))
+  expect_equal(x + 1, parse_units(x, "rel", "psa2ui",1))
+  expect_equal(x*1000, parse_units(x, "pm", "psa2ui"))
+  expect_equal(x, parse_units(x, "NA", "ui2psa"))
 })
 
 # NOTE: `load_*_gam`, `input_list`, and `model_input_names` are tested

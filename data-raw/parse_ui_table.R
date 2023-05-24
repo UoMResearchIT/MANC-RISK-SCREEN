@@ -23,7 +23,7 @@ OUTPUT_UI <- "R/auto_generated_ui.R"
 parse_ui_table <- function() {
 
   # Expected column names
-  COL_NAMES <- c("group", "id", "type", "basic", "fixed", "default", "rel_min", "rel_max", "abs_min", "abs_max", "step", "symbol", "unit", "description", "notes")
+  COL_NAMES <- c("group", "id", "type", "basic", "fixed", "default", "rel_min", "rel_max", "abs_min", "abs_max", "step", "unit", "description", "notes")
 
   # Read input config table from INPUT_FILE, make sure all columns are available
   input_config_table <- read.delim(INPUT_FILE, na.strings = c("NA", "?", ""), blank.lines.skip = T)
@@ -243,12 +243,6 @@ parse_line <- function(line) {
 
   # Escape unicode characters
   line$description <- stringi::stri_escape_unicode(line$description)
-  if ( !is.empty(line$symbol) ) {
-    line$symbol <- stringi::stri_escape_unicode(line$symbol)
-  }
-  if ( !is.empty(line$unit) ) {
-    line$unit <- stringi::stri_escape_unicode(line$unit)
-  }
 
   if (grepl("num|slider", line$type, ignore.case = T)) {
     list[args, line] <- parse_numeric(line)
