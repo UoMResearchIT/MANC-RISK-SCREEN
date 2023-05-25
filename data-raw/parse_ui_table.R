@@ -1,25 +1,25 @@
+
 #' Development tool, used to generate a simple UI from the configuration table
-#' of model inputs "dev/input_config.csv"
+#' of model inputs `dev/input_config.csv`
 #'
-#' Writes a function "R/auto_generated_ui.R" returning a fluidPage object,
-#' to be used in "app_ui.R". The format and parsing is controlled by
-#' `write_chunk` below.
+#' @details
+#' Customize the header and closing directly on this function.
 #'
-#' It also exports the parsed table `data/input_config_table.rda`, which is
-#' used by functions in `R/utils.R` to identify model input types and
-#' configurations.
-
-devtools::load_all()
-
-# library("glue")
-# library("stringr")
-# library("gsubfn")
-
-# source("dev/add_use_data.R")
-
-INPUT_FILE <- "data-raw/input_config.csv"
-OUTPUT_UI <- "R/auto_generated_ui.R"
-
+#' The format and parsing of groups of inputs is controlled by sub-function `write_chunk`.
+#'
+#' Features like limits, slider steps, and visibility are set dynamically by `load_input_config`,
+#' and are set by `get_PSA_input_limits`.
+#'
+#' @export `R/auto_generated_ui.R` function code returning a `fluidPage`
+#'  object, to be used in `app_ui.R`.
+#'
+#' @export `data/input_config_table.rda` parsed table, which is
+#'  used by functions in `R/utils.R` to identify model input types and
+#'  configurations.
+#'
+#' @import glue
+#' @import stringr
+#' @import gsubfn
 parse_ui_table <- function() {
 
   # Expected column names
@@ -80,9 +80,12 @@ parse_ui_table <- function() {
     "\n\n",
     "  # Customize this closure later\n",
     '  h3("Model outputs"),\n',
-    '  plotOutput("qualy_plot"),\n',
-    '  plotOutput("cost_plot"),\n',
-    '  h3("Status"),\n',
+    '  fluidRow(\n',
+    '    column(width=5, tableOutput("table") ),\n',
+    '    column(width=1, br()),\n',
+    '    column(width=6, plotOutput("icer_plot") )\n',
+    '  ),\n',
+    '  h3("DEBUG: PSA input"),\n',
     '  verbatimTextOutput("status"),\n\n',
     ")\n"
   )
@@ -118,6 +121,11 @@ is.numeric.ish <- function(x) !is.empty(x) && !suppressWarnings(is.na(as.numeric
 
 is_group_header <- function(line) !is.empty(line$group) && is.empty(line$id)
 
+#' Process a group of inputs
+#'
+#' @param chunk a block of lines from `input_config_table` representing group of UI inputs.
+#' @return parsed chunk
+#'
 parse_chunk <- function(chunk) {
   stopifnot(length(unique(chunk$group)) == 1)
   group <- as.character(chunk$group[1])
@@ -135,17 +143,16 @@ parse_chunk <- function(chunk) {
   return(chunk)
 }
 
-
-# Writes h2 headers for every non-empty cell in the "Group" column (A:A),
-# then wraps every line until the next header into a FluidRow column.
-#
-#  h2("Header"),
-#  fluidRow(
-#    column(width=NCOL, numericInput("foo", "Foo?", value = 42) ),
-#    # Commented incomplete rows
-#    column(width=NCOL, sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1) )
-#  ),
-#
+#' Writes an `h2` header with the `group` name,
+#' then wraps every line of `elements` into a `FluidRow` column.
+#'
+#'  h2("Header"),
+#'  fluidRow(
+#'    column(width=NCOL, numericInput("foo", "Foo?", value = 42) ),
+#'    # Commented incomplete rows
+#'    column(width=NCOL, sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1) )
+#'  ),
+#'
 write_chunk <- function(group, elements) {
   write_out('  h2("{group}"),\n')
 
@@ -174,6 +181,7 @@ write_chunk <- function(group, elements) {
   if (!all(is_comment)) write_out("  ),\n")
 }
 
+#' Make sure each input is assigned to a group, and they are sorted
 assign_groups <- function(config_table) {
   for (line_counter in seq_len(nrow(config_table))) {
     line <- as.list(config_table[line_counter, ])
@@ -201,6 +209,12 @@ assign_groups <- function(config_table) {
   return(config_table)
 }
 
+#' Parse a line of `input_config_table` representing a UI input.
+#'
+#' @param line a single line (named list) of `input_config_table`
+#' @return `list[out, line]` where `out` is a string of code to generate the UI input,
+#'  and `line` is potentially modified (strings converted to numbers & rounded)
+#'
 parse_line <- function(line) {
   line <- as.list(line)
   if (is_group_header(line)) {
@@ -292,12 +306,14 @@ parse_line <- function(line) {
   return(list(out, line))
 }
 
-# Parse default value, step, and limits (numeric and slider inputs)
-#
-#   list[args,line] <- parse_numeric(line)
-#
-# Where args = '"id","description", min=X, max=...'
-# and line is potentially modified (strings converted to numbers & rounded)
+#' Parse default value, step, and limits (numeric and slider inputs)
+#'
+#' @param line a single line (named list) of `input_config_table`
+#'
+#' @return `list[args,line]` Where `args` is a string `'"id","description", min=X, max=...'`
+#'  of arguments for `numericInput` or `sliderInput`, and `line` is potentially modified
+#'  (strings converted to numbers & rounded)
+#'
 parse_numeric <- function(line) {
   if (all(is.empty(line)) || !grepl("num|slider", line$type, ignore.case = T)) {
     return(list(args = NULL, line))
@@ -371,5 +387,15 @@ parse_numeric <- function(line) {
 
   return(list(args, line))
 }
+
+
+# main ------------------------------------------------------------------------------------------------------------
+
+devtools::load_all()
+
+# source("dev/add_use_data.R")
+
+INPUT_FILE <- "data-raw/input_config.csv"
+OUTPUT_UI <- "R/auto_generated_ui.R"
 
 parse_ui_table()

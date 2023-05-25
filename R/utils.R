@@ -97,6 +97,15 @@ parse_units <- function(x, units, direction, y = NULL) {
   return(x)
 }
 
+#' `custom_round` - round vector `x` to units of `step`
+#'
+#' @param x value(s) to be rounded
+#' @param step defaults to `10^(ceiling(log10(abs(x))) - digits)`
+#' @param op use custom operation (e.g. `ceiling` or `floor`) instead of `round`
+#' @param digits significant digits (for default `step` only)
+#'
+#' @return `op(x / step) * step`
+#'
 custom_round <- function(x, step = NULL, op = round, digits = 4) {
 
   stopifnot(is.numeric(x))

@@ -2,7 +2,7 @@
 #'
 #' @return Overwrites columns `rel_min` and `rel_max` of `input_config_table`
 #'
-get_PSA_input_limits <- function(.MIN_STEPS = 10) {
+get_PSA_input_limits <- function(.MIN_STEPS = 50) {
 
   data("input_config_table")
   data("PSA_config")
