@@ -16,6 +16,27 @@ input_list <- function(key) {
   return(input_config_table$id[subset])
 }
 
+#' Returns configurable subsets of inputs, to control app "modes"
+#'
+#' Relies on columns "basic", "valid", and "fixed" of internal data table
+#' `input_config_table`, exported by `dev/parse_ui_table.R`
+#'
+#' @param key named subset of inputs: {"basic","advanced","fixed"}
+#' @return list of input ids in the corresponding list
+#'
+#' @noRd
+input_groups <- function(key) {
+
+  grp <- input_config_table %>% group_by(group) %>% summarise(basic = any(basic & valid), fixed = all( fixed | !valid))
+
+  subset <- switch(key,
+                   "basic" = grp$basic,
+                   "advanced" = !grp$basic & !grp$fixed,
+                   "fixed" = grp$fixed
+  )
+  return(grp$group[subset])
+}
+
 #' map input IDs to model variable names
 #' @param ui_vars list of input ID's, e.g. input_list("basic")
 #' @return variable names as used in GAM model

@@ -1,9 +1,9 @@
 group	id	type	basic	fixed	default	rel_min	rel_max	abs_min	abs_max	step	unit	description	notes
-Simulation parameters													
+Simulation												Simulation parameters	
 	inum				100000							Number of simulated women	
 	jnum			x								Number of simulated lifetimes per woman	Not used - not functional in the model but removing causes issues
 													
-Screening programme and related parameters													
+Strategy												Screening programme and related parameters	
 	screen_strategy	select			3			1	6	1		Screening strategy	GAM model runs for all (6) base strategies
 	supplemental_screening	check			0							When switched on adds MRI and ultrasound screening for women with dense breasts	
 	start_age	slider			38	24	60	18	60	1		Age of an individual at start of simulation	Values below 24 may produce misleading results as tumours don't have enough time to develop correctly
@@ -21,7 +21,7 @@ Uptake
 	risk_feedback	slider			1			0	1	0.01		Proportion of women who attend risk consultation	
 	screen_change	slider			1			0	1	0.01		Proportion of women with high/moderate/low risk who change screening interval	
 													
-Cancer and all cause mortality													
+Mortality												Cancer and all cause mortality	
 	gamma_survival_1	slider	x		0.9789983854127825	gamma_survival_2		0	1	0.01	5yr	Five-year survival for stage 1 cancer	Must be decreasing, adjust units (5-yr to rate param)
 	gamma_survival_2	slider	x		0.89556648575649467	gamma_survival_3	gamma_survival_1	0	1	0.01	5yr	Five-year survival for stage 2 cancer	
 	gamma_survival_3	slider	x		0.72008419845076599		gamma_survival_2	0	1	0.01	5yr	Five-year survival for stage 3 cancer	
@@ -32,7 +32,7 @@ Cancer and all cause mortality
 	acmmortality_wb_b	numeric			86.787999999999997							All-cause mortality Weibull scale	
 	Incidence_Mortality	file			Incidence_Mortality_ONS2.csv							Incidence disribution	Must sum to 1
 													
-Cancer growth and staging													
+Cancer Growth												Cancer growth and staging	
 	risk_mat	file			synthetic_risk_data.csv							Synthetic dataset of breast density, 10 year, and lifetime breast cancer risk derived from PROCAS2 study	Fixed
 	metastatic_prob	table			data.frame(age=c(25,35,45,55,65,75,85), prob=c(0.046218154,0.086659039,0.109768116,0.127099924,0.142505975,0.159837783,1.73E-01))							Metastatic cancer probabilities by age	
 	stage_by_size_mat	table			data.frame("v1"=c(0.383,0.567,0.611,0.557,0,0), "v2"=c(0.033,0.111,0.180,0.208,0.723,0.563), "v3"=c(0.058,0.057,0.208,0.147,0.206,0.351), "v5"=c(0.525,0.265,0.120,0.088,0.071,0.086))							Nottingham Prognostic Indicator by cancer size	This is quite an important one but there is quite complex calculation underpinning it that might need people to send me data to reformat
@@ -46,7 +46,7 @@ Cancer growth and staging
 	start_size			x	0.25							Tumour starting size (diameter) [mm]	Fixed
 	ca_size_cut	vector			c(0.025, 5, 10, 15, 20, 30, 128)							Cancer size category cut-points (from Kolias 1999)	
 													
-Screening Performance													
+Screening												Screening Performance	
 	prop_screen_detected	slider			0.43099999999999999	0.3	0.6	0	1	0.01		Proportion of cancers in screening age range detected by screen	
 	beta_1	slider	x		1.47	1	1.8	0.1	10			Sensitivity of mammography (β₁) [mm] — how rapidly sensitivity changes with tumour size	
 	beta_2	slider	x		6.51	5	8	0.1	10			Sensitivity of mammography (β₂) [mm] — size of tumour for which sensitivity is equal to 50%.	
@@ -64,7 +64,11 @@ Screening Performance
 	low_risk_cut				1.5							Risk cut-off in low-risk-only strategies	
 	density_cutoff				3			1	4			Breast density cut-offs for supplemental sreening (VDG groups 3 and 4)	
 													
-Cost data													
+Overdiagnosis												False Positive and Overdiagnosis parameters	
+	recall_rate				4.5600000000000002E-2			0	1	0.01		Approx. UK recall rate	
+	biopsy_rate				2.4E-2			0	1	0.01		False-positive biopsy proportion	
+													
+Cost												Cost data	
 	cost_strat	slider	x		8.4499999999999993			0	200			Cost of stratification process [GBP]	
 	costscreen	slider	x		60.56			0	200		rel	Cost of screening [GBP]	
 	cost_follow_up	slider	x		106			0	500		rel	Cost of follow up [GBP]	
@@ -75,18 +79,10 @@ Cost data
 	tblLookup	table		x	costs_laudicella()							Cost of cancer treatment [GBP]	Fixed (for now), to be simplified / tuned by simpler parameter set in the future
 	costvar	slider	x		1			0.1	10		rel	Multiplier for Cost of Cancer treatment	
 													
-False Positive and Overdiagnosis parameters													
-	recall_rate				4.5600000000000002E-2			0	1	0.01		Approx. UK recall rate	
-	biopsy_rate				2.4E-2			0	1	0.01		False-positivebiopsyproportion	
-													
-Utility Weights													
+Utility												Utility Weights	
 	utility_ages	table			data.frame(age=c(30,35,40,45,50,55,60,65,70,75,80,85,90,95,100), util=c(0.9383,0.9145,0.9069,0.8824,0.8639,0.8344,0.8222,0.8072,0.8041,0.779,0.7533,0.6985,0.6497,0.6497,0.6497))							Set age adjusted utility values	
 	utility_DCIS				1			0	1	0.01		Non/micro-invasive tumour (DCIS) utility decrement	
 	util_1to3	slider	x		0.82			0	1	0.01		Utility decrement (first yeara, set time independent) stages 1 to 3	
 	util_4	slider	x		0.75			0	1	0.01		Utility decrement (first year, set time independent) metastatic	
 	utility_stage_cat_y1											First year utility decrements (set time independent)	
 	utility_stage_cat_follow											Following year utility decrements (set time independent)	
-													
-Output													
-	results												
-	merged_result												

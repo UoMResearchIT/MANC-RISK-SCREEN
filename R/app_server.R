@@ -18,8 +18,14 @@ app_server <- function(input, output, session) {
 
   #lapply(advanced_inputs,shinyjs::disable)
   lapply(advanced_inputs,shinyjs::hide)
-
   lapply(fixed_inputs,shinyjs::hide)
+
+  for ( tab in input_groups("advanced") ){
+    hideTab(inputId = "tabs", target = tab)
+  }
+  for ( tab in input_groups("fixed") ){
+    hideTab(inputId = "tabs", target = tab)
+  }
 
   output$intro_text <- renderText(random_text(nwords = 50))
 

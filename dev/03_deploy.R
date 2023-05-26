@@ -4,6 +4,7 @@ UPDATE_CONFIG = T
 CHECK = T
 DEPLOY = T
 
+if ( UPDATE_CONFIG ){ file.remove("R/auto_generated_ui.R") }
 devtools::load_all()
 
 # Update csv copy of shared "inputs.xlsx"

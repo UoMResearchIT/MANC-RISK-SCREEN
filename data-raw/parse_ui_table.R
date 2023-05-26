@@ -60,11 +60,13 @@ parse_ui_table <- function() {
 
   write_out(
     "fluidPage(\n",
-    "  # Customize this header later\n",
     "  shinyjs::useShinyjs(),\n",
     "  shinyFeedback::useShinyFeedback(),\n",
     '  h1( paste("MancRiskScreenUI -", packageVersion("MancRiskScreenUI")) ),\n',
-    '  textOutput("intro_text"),\n\n\n'
+    '  p( packageDescription("MancRiskScreenUI")$Description ),\n',
+    '  br(),\n\n',
+    '  sidebarLayout(\n',
+    '    sidebarPanel( tabsetPanel( id = "tabs", \n',
   )
 
   for (grp in levels(input_config_table$group)) {
@@ -77,14 +79,20 @@ parse_ui_table <- function() {
   }
 
   write_out(
-    "\n\n",
-    "  # Customize this closure later\n",
-    '  h3("Model outputs"),\n',
-    '  fluidRow(\n',
-    '    column(width=5, tableOutput("table") ),\n',
-    '    column(width=1, br()),\n',
-    '    column(width=6, plotOutput("icer_plot") )\n',
-    '  ),\n',
+    '\n',
+    '    ), width = 6 ), # end of sidebarPanel\n',
+    '\n',
+    '    mainPanel(\n',
+    '      h3("Model output"),\n',
+    '      p( paste("Generalized additive models (GAM) fit on", input_config_table["inum","default"], "simulation runs.") ),\n',
+    '      tableOutput("table"),\n',
+    '      br(),\n',
+    '      plotOutput("icer_plot"),\n',
+    '      width = 6\n',
+    '    ) # end of mainPanel\n',
+    '\n',
+    '  ), # end of sidebarLayout\n',
+    '\n\n',
     '  h3("DEBUG: PSA input"),\n',
     '  verbatimTextOutput("status"),\n\n',
     ")\n"
@@ -129,6 +137,7 @@ is_group_header <- function(line) !is.empty(line$group) && is.empty(line$id)
 parse_chunk <- function(chunk) {
   stopifnot(length(unique(chunk$group)) == 1)
   group <- as.character(chunk$group[1])
+  title <- as.character(chunk$description[1])
 
   elements <- NULL
   for (j in seq_len(nrow(chunk))) {
@@ -139,22 +148,30 @@ parse_chunk <- function(chunk) {
     chunk[j, ] <- line
   }
 
-  write_chunk(group, elements)
+  write_chunk(group, title, elements)
   return(chunk)
 }
 
-#' Writes an `h2` header with the `group` name,
-#' then wraps every line of `elements` into a `FluidRow` column.
+#' Writes a `tabPanel`  for a given UI `group`
 #'
-#'  h2("Header"),
-#'  fluidRow(
-#'    column(width=NCOL, numericInput("foo", "Foo?", value = 42) ),
-#'    # Commented incomplete rows
-#'    column(width=NCOL, sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1) )
+#'  tabPanel(title = "group",
+#'    h3("title"),
+#'    numericInput("foo", "Foo?", value = 42),
+#'    sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1)
 #'  ),
 #'
-write_chunk <- function(group, elements) {
-  write_out('  h2("{group}"),\n')
+write_chunk <- function(group, title = NULL, elements, .INDENT = 6) {
+
+  tabs <- stringr::str_flatten(rep(" ",.INDENT))
+
+  indented <- function(lines, n = .INDENT + 2) {
+    tabs <- stringr::str_flatten(rep(" ",n))
+    paste0(tabs,gsub("(\\n)",paste0("\\1",tabs),lines))
+  }
+
+
+  write_out(tabs,'tabPanel(title = "{group}",\n')
+  write_out(tabs,'  h3("{title}"),\n')
 
   if (rlang::is_empty(elements)) {
     return()
@@ -162,14 +179,18 @@ write_chunk <- function(group, elements) {
 
   is_comment <- sapply(elements, function(x) startsWith(as.character(x), "#"))
 
-  if (!all(is_comment)) write_out("  fluidRow(\n")
+  # if (!all(is_comment)) write_out(tabs,"fluidRow(\n")
 
   for (j in seq_along(elements)) {
     msg <- elements[[j]]
     if (startsWith(msg, "#")) {
-      write_out("   {msg}\n")
+      write_out(tabs,"  {msg}\n")
     } else {
-      write_out("    column(width=NCOL, {msg} )")
+      write_out(indented(msg))
+      # write_out(tabs,'  column(\n',
+      #           tabs,'    width=NCOL,\n',
+      #           indented(msg),'\n',
+      #            tabs,'  )')
       if (any(!is_comment[-(1:j)])) {
         write_out(",\n")
       } else {
@@ -178,7 +199,7 @@ write_chunk <- function(group, elements) {
     }
   }
 
-  if (!all(is_comment)) write_out("  ),\n")
+  if (!all(is_comment)) write_out(tabs,"),\n")
 }
 
 #' Make sure each input is assigned to a group, and they are sorted
@@ -274,9 +295,9 @@ parse_line <- function(line) {
   } else if (grepl("table|matrix", line$type, ignore.case = T)) {
     out <- super_glue(
       'shinyMatrix::matrixInput("{line$id}", value = data.matrix({line$default},rownames.force=F),\n',
-      "rows = list(names = F, editableNames = F),\n",
-      "cols = list(names = T, editableNames = F),\n",
-      'class = "numeric")'
+      '                         rows = list(names = F, editableNames = F),\n',
+      '                         cols = list(names = T, editableNames = F),\n',
+      '                         class = "numeric")'
     )
 
     # GOTCHA: matrix must be wrapped in list(), otherwise exit assignment
