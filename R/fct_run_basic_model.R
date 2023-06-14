@@ -5,8 +5,8 @@
 #' @noRd
 run_basic_model <- function(input_vector) {
 
-  data("qualy_model_obj")
-  data("cost_model_obj")
+  qualy_model_obj <- .pkgenv$qualy_model_obj
+  cost_model_obj <- .pkgenv$cost_model_obj
 
   # replicate for all strategies
   strategies <- as.factor(levels(qualy_model_obj$var.summary$alternative))
@@ -37,7 +37,7 @@ run_basic_model <- function(input_vector) {
 #' @noRd
 parse_inputs <- function(input = NULL) {
 
-  data("input_config_table")
+  input_config_table <- .pkgenv$input_config_table
 
   ui_vars <- input_list("basic")
   defaults <- input_config_table[ui_vars,"default"]

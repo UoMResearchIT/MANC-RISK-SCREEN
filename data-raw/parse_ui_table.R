@@ -84,7 +84,7 @@ parse_ui_table <- function() {
     '\n',
     '    mainPanel(\n',
     '      h3("Model output"),\n',
-    '      p( paste("Generalized additive models (GAM) fit on", input_config_table["inum","default"], "simulation runs.") ),\n',
+    '      p( paste("Generalized additive models (GAM) fit on", .pkgenv$input_config_table["inum","default"], "simulation runs.") ),\n',
     '      tableOutput("table"),\n',
     '      br(),\n',
     '      plotOutput("icer_plot"),\n',

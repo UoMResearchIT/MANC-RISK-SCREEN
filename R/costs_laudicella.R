@@ -26,29 +26,29 @@ costs_laudicella <- function() {
     8, 1376, 2559, 1183, 2134, 2454, 320,
     9, 1279, 1848, 569, 2204, 2932, 728
   ) %>%
-    select(-Diff1, -Diff2) %>%
+    select(-"Diff1", -"Diff2") %>%
     tidyr::pivot_longer(
       cols = contains("6"),
       names_to = c("Stage", "Age"),
       names_sep = "_",
       values_to = "Cost"
     ) %>%
-    group_by(Stage, Age) %>%
+    group_by(.data$Stage, .data$Age) %>%
     mutate(
-      DCost = Cost - first(Cost),
-      DCost.i = DCost * 1.219312579, # NHSCII inflator for 2010/11-->2020/21
-      disc = 1 / 1.035^(Yr - 0.5),
-      DCost.i.d = DCost.i * disc,
-      CDCost.i.d = cumsum(DCost.i.d),
-      Yr1 = as.factor(Yr == 1),
-      Yr2 = as.factor(Yr == 2),
-      Yr3 = as.factor(Yr == 3)
+      DCost = .data$Cost - first(.data$Cost),
+      DCost.i = .data$DCost * 1.219312579, # NHSCII inflator for 2010/11-->2020/21
+      disc = 1 / 1.035^(.data$Yr - 0.5),
+      DCost.i.d = .data$DCost.i * .data$disc,
+      CDCost.i.d = cumsum(.data$DCost.i.d),
+      Yr1 = as.factor(.data$Yr == 1),
+      Yr2 = as.factor(.data$Yr == 2),
+      Yr3 = as.factor(.data$Yr == 3)
     ) %>%
-    filter(Yr > 0) %>%
-    arrange(Stage, Age, Yr)
+    filter(.data$Yr > 0) %>%
+    arrange(.data$Stage, .data$Age, .data$Yr)
 
   # log-linear model
-  mod <- lm(
+  mod <- stats::lm(
     data = cost_table,
     formula = log(DCost) ~ (Yr1 + Yr2 + Yr3 + Yr) * Stage * Age
   )
@@ -56,31 +56,31 @@ costs_laudicella <- function() {
   # prediction matrix
   tblNewDat <- tidyr::crossing(Yr = 1:50, Stage = c("Early", "Late"), Age = c("18.64", "65plus")) %>%
     mutate(
-      Yr1 = as.factor(Yr == 1),
-      Yr2 = as.factor(Yr == 2),
-      Yr3 = as.factor(Yr == 3)
+      Yr1 = as.factor(.data$Yr == 1),
+      Yr2 = as.factor(.data$Yr == 2),
+      Yr3 = as.factor(.data$Yr == 3)
     )
 
   # generate predictions
   tblNewDat %>%
-    bind_cols(pred = mod %>% predict(newdata = tblNewDat)) %>%
-    mutate(DCost.p = exp(pred)) -> tblPred
+    bind_cols(pred = mod %>% stats::predict(newdata = tblNewDat)) %>%
+    mutate(DCost.p = exp(.data$pred)) -> tblPred
 
-  # make lookup table
+  # make look-up table
   tblLookup <- tblPred %>%
-    filter(Yr == 1) %>%
-    mutate(across(c(Yr, pred, DCost.p), ~0)) %>%
+    filter(.data$Yr == 1) %>%
+    mutate(across(c(.data$Yr, .data$pred, .data$DCost.p), ~0)) %>%
     bind_rows(tblPred) %>%
-    group_by(Stage, Age) %>%
+    group_by(.data$Stage, .data$Age) %>%
     mutate(
-      DCost.p.i = DCost.p * 1.219312579, # NHSCII inflator for 2010/11-->2020/21
-      disc = 1 / 1.035^(Yr - 0.5),
-      DCost.p.i.d = DCost.p.i * disc,
-      CDCost.p.i.d = cumsum(DCost.p.i.d),
-      StageEarly = Stage == "Early",
-      AgeYoung = Age == "18.64"
+      DCost.p.i = .data$DCost.p * 1.219312579, # NHSCII inflator for 2010/11-->2020/21
+      disc = 1 / 1.035^(.data$Yr - 0.5),
+      DCost.p.i.d = .data$DCost.p.i * .data$disc,
+      CDCost.p.i.d = cumsum(.data$DCost.p.i.d),
+      StageEarly = .data$Stage == "Early",
+      AgeYoung = .data$Age == "18.64"
     ) %>%
-    arrange(Stage, Age, Yr) %>%
+    arrange(.data$Stage, .data$Age, .data$Yr) %>%
     ungroup()
 
   return(tblLookup)

@@ -4,8 +4,8 @@
 #'
 get_PSA_input_limits <- function(.MIN_STEPS = 50) {
 
-  data("input_config_table")
-  data("PSA_config")
+  input_config_table <- .pkgenv$input_config_table
+  PSA_config <- .pkgenv$PSA_config
 
   var_names <- colnames(PSA_config)
   basic_inputs <- input_list("basic")

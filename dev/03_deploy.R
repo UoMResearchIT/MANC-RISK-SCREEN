@@ -1,8 +1,8 @@
 
-UPDATE_CSV = T
-UPDATE_CONFIG = T
+UPDATE_CSV = F
+UPDATE_CONFIG = F
 CHECK = T
-DEPLOY = T
+DEPLOY = F
 
 if ( UPDATE_CONFIG ){ file.remove("R/auto_generated_ui.R") }
 devtools::load_all()

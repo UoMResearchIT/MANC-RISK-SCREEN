@@ -1,13 +1,13 @@
 #' Returns configurable subsets of inputs, to control app "modes"
 #'
-#' Relies on columns "basic", "valid", and "fixed" of internal data table
-#' `input_config_table`, exported by `dev/parse_ui_table.R`
+#' Relies on columns "basic", "valid", and "fixed" of `input_config_table`
 #'
 #' @param key named subset of inputs: {"basic","advanced","fixed"}
 #' @return list of input ids in the corresponding list
 #'
 #' @noRd
 input_list <- function(key) {
+  input_config_table <- .pkgenv$input_config_table
   subset <- switch(key,
     "basic" = input_config_table$valid & input_config_table$basic,
     "advanced" = input_config_table$valid & !input_config_table$fixed & !input_config_table$basic,
@@ -27,7 +27,9 @@ input_list <- function(key) {
 #' @noRd
 input_groups <- function(key) {
 
-  grp <- input_config_table %>% group_by(group) %>% summarise(basic = any(basic & valid), fixed = all( fixed | !valid))
+  grp <- .pkgenv$input_config_table %>%
+    group_by(.data$group) %>%
+    summarise(basic = any(.data$basic & .data$valid), fixed = all( .data$fixed | !.data$valid))
 
   subset <- switch(key,
                    "basic" = grp$basic,

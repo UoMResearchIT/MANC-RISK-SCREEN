@@ -4,12 +4,12 @@
 #' (set by `get_PSA_input_limits`), and calls required functions
 #' `updateSliderInput`, `updateNumericInput`, etc.
 #'
-#' @import gsubfn
 #' @import glue
+#' @import utils
 #' @noRd
 load_input_config <- function(session, dryrun = F) {
 
-  data("input_config_table")
+  input_config_table <- .pkgenv$input_config_table
 
   COL_NAMES <- c("id", "type", "fixed", "default", "rel_min", "rel_max", "abs_min", "abs_max", "description", "step")
   stopifnot(is.data.frame(input_config_table) &&
@@ -17,19 +17,19 @@ load_input_config <- function(session, dryrun = F) {
 
   ok <- input_config_table$valid & !input_config_table$fixed
 
-  disp.str <- function(x) paste(capture.output(str(x)), collapse = "\n")
+  # disp.str <- function(x) paste(capture.output(str(x)), collapse = "\n")
 
   for (j in which(ok)) {
 
     line <- as.list(input_config_table[j, COL_NAMES])
-    list[fun,args] <- parse_line(line)
+    out <- parse_line(line)
 
-    if ( !rlang::is_empty(args) & !dryrun ){
+    if ( !rlang::is_empty(out$args) & !dryrun ) {
 
-      args$inputId <- line$id
-      args$session <- session
+      out$args$inputId <- line$id
+      out$args$session <- session
 
-      do.call(fun,args)
+      do.call(out$fun, out$args)
     }
   }
 }
@@ -43,7 +43,7 @@ parse_line <- function(line) {
   if ( match("value",typ$opts) && !is.na(line$default) ) {
 
     args$value <- unlist(line$default)
-    if ( line$type == "matrix" ){
+    if ( line$type == "matrix" ) {
       args$value <- line$default[[1]] # see GOTCHA in parse_ui_table
     } else {
        args$value = line$default
@@ -62,7 +62,7 @@ parse_line <- function(line) {
     args$step <- line$step
   }
 
-  return( list(typ$fun, args) )
+  return( list(fun = typ$fun, args = args) )
 }
 
 parse_type <- function(type) {

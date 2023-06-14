@@ -1,6 +1,6 @@
 Package: MancRiskScreenUI
 Title: Manchester-Breast-Cancer-Model
-Version: 0.4.0.0
+Version: 0.4.1.0
 Authors@R: c(
     person("Martin", "Herrerias", , "martin.herreriasazcue@manchester.ac.uk", role = "cre"),
     person("Stuart", "Wright", role = "aut"),
@@ -25,7 +25,6 @@ Imports:
     dplyr,
     glue,
     golem (>= 0.4.0),
-    gsubfn,
     magrittr,
     rlang,
     shinipsum,

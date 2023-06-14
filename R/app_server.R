@@ -40,10 +40,10 @@ app_server <- function(input, output, session) {
 
   output$icer_plot <- renderPlot({
     df <- mdl_output()
-    icer_strat <- dampack::calculate_icers(cost=df$cost,
-                                           effect=df$qualy,
+    icer_strat <- dampack::calculate_icers(cost = df$cost,
+                                           effect = df$qualy,
                                            strategies = row.names(df))
-    plot(icer_strat,currency="£",label="all")
+    plot(icer_strat,currency = "\uA3", label = "all")
   })
 
   output$status <- renderPrint({

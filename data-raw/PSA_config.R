@@ -18,7 +18,7 @@
 #'   PSA_all_p <- draw_psa_runs(version = '1.1', 1000, psa_prefix = FALSE)
 #'
 draw_psa_runs <- function(version = '1.1',
-                          mcruns = input_config_table["inum","default"],
+                          mcruns = .pkgenv$input_config_table["inum","default"],
                           psa_prefix = TRUE,
                           write_out = TRUE,
                           seed = 42) {
