@@ -27,6 +27,12 @@ app_ui <- function(request) {
         fluidPage( sidebarLayout(
           sidebarPanel( width = 6,
 
+            fluidRow(style = 'margin-right: 3%;',
+                     align = 'right',
+                     mod_save_load_reset_ui("menu")
+            ),
+            br(),
+
             # tabPanel list, auto-generated from `input_config_table`
             auto_generated_ui(id = "tabs", selected = "Utility")
           ),

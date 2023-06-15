@@ -16,14 +16,17 @@ app_server <- function(input, output, session) {
 
   load_input_config(session)
 
+  defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
+  names(defaults) <- basic_inputs
+
   #lapply(advanced_inputs,shinyjs::disable)
   lapply(advanced_inputs,shinyjs::hide)
   lapply(fixed_inputs,shinyjs::hide)
 
-  for ( tab in input_groups("advanced") ){
+  for ( tab in input_groups("advanced") ) {
     hideTab(inputId = "tabs", target = tab)
   }
-  for ( tab in input_groups("fixed") ){
+  for ( tab in input_groups("fixed") ) {
     hideTab(inputId = "tabs", target = tab)
   }
 
@@ -37,7 +40,6 @@ app_server <- function(input, output, session) {
     rownames = TRUE
   )
 
-
   output$icer_plot <- renderPlot({
     df <- mdl_output()
     icer_strat <- dampack::calculate_icers(cost = df$cost,
@@ -45,6 +47,18 @@ app_server <- function(input, output, session) {
                                            strategies = row.names(df))
     plot(icer_strat,currency = "\uA3", label = "all")
   })
+
+  # Required by mod_save_load_reset_server:
+  # call shinyjs::reset at startup, to populate input$`shinyjs-resettable-`
+  shinyjs::reset()
+  saved_inputs <- mod_save_load_reset_server("menu",
+                                             main_session = session,
+                                             defaults = defaults,
+                                             ext = "yml",
+                                             downloader = NULL,
+                                             parser = NULL,
+                                             .filename = "dummy_session",
+                                             .bookmark = c("main_tab", "tabs"))
 
   # output$status <- renderPrint({
   #   print(t(data.frame(mdl_inputs())))
