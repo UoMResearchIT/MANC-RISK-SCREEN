@@ -6,14 +6,47 @@
 #' @noRd
 app_ui <- function(request) {
 
-  # NCOL <- 3
+  app_title <- "MancRiskScreenUI"
+  pkg <- golem::pkg_name()
+  n_runs <- .pkgenv$input_config_table["inum","default"]
 
   tagList(
     # Leave this function for adding external resources
-    golem_add_external_resources(),
-    # Your application UI logic
+    golem_add_external_resources(app_title),
 
-    auto_generated_ui()
+    navbarPage(app_title, id = "main_tab",
+      tabPanel("About",
+        h1( paste(app_title, "-", packageVersion(pkg)) ),
+        p( packageDescription(pkg)$Description )
+      ),
+      tabPanel("Main",
+
+        shinyFeedback::useShinyFeedback(),
+        shinyjs::useShinyjs(debug = TRUE),
+
+        fluidPage( sidebarLayout(
+          sidebarPanel( width = 6,
+
+            # tabPanel list, auto-generated from `input_config_table`
+            auto_generated_ui(id = "tabs", selected = "Utility")
+          ),
+
+          mainPanel(
+            h3("Model output"),
+            p( paste("Generalized additive models (GAM) fit on", n_runs, "simulation runs.") ),
+            tableOutput("table"),
+            br(),
+            plotOutput("icer_plot"),
+            width = 6
+          )
+        ),
+
+        # h3("DEBUG: PSA input"),
+        # verbatimTextOutput("status"),
+
+        )
+      )
+    )
   )
 }
 
@@ -25,7 +58,7 @@ app_ui <- function(request) {
 #' @import shiny
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
-golem_add_external_resources <- function() {
+golem_add_external_resources <- function(app_title) {
   add_resource_path(
     "www",
     app_sys("app/www")
@@ -35,7 +68,7 @@ golem_add_external_resources <- function() {
     favicon(ext = 'png'),
     bundle_resources(
       path = app_sys("app/www"),
-      app_title = "MancRiskScreenUI"
+      app_title = app_title
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()

@@ -1,17 +1,17 @@
+library(gsubfn)
 
 #' Development tool, used to generate a simple UI from the configuration table
 #' of model inputs `dev/input_config.csv`
 #'
 #' @details
 #' Customize the header and closing directly on this function.
-#'
 #' The format and parsing of groups of inputs is controlled by sub-function `write_chunk`.
 #'
 #' Features like limits, slider steps, and visibility are set dynamically by `load_input_config`,
 #' and are set by `get_PSA_input_limits`.
 #'
-#' @export `R/auto_generated_ui.R` function code returning a `fluidPage`
-#'  object, to be used in `app_ui.R`.
+#' @export `R/auto_generated_ui.R` function code returning a `tabsetPanel`
+#'  object, to be used in `app_ui.R`, using `auto_generated_ui(id, ...)`
 #'
 #' @export `data/input_config_table.rda` parsed table, which is
 #'  used by functions in `R/utils.R` to identify model input types and
@@ -20,6 +20,7 @@
 #' @import glue
 #' @import stringr
 #' @import gsubfn
+#' @noRd
 parse_ui_table <- function() {
 
   # Expected column names
@@ -54,20 +55,8 @@ parse_ui_table <- function() {
   write_out("# Edit input config in: data_raw/input_config.csv:\n")
   write_out("# Edit parsing rules & layout in: data_raw/parse_ui_table.R\n")
 
-  write_out("auto_generated_ui <- function() {{\n\n")
-
-  write_out("NCOL <- 3\n\n")
-
-  write_out(
-    "fluidPage(\n",
-    "  shinyjs::useShinyjs(),\n",
-    "  shinyFeedback::useShinyFeedback(),\n",
-    '  h1( paste("MancRiskScreenUI -", packageVersion("MancRiskScreenUI")) ),\n',
-    '  p( packageDescription("MancRiskScreenUI")$Description ),\n',
-    '  br(),\n\n',
-    '  sidebarLayout(\n',
-    '    sidebarPanel( tabsetPanel( id = "tabs", \n',
-  )
+  write_out("auto_generated_ui <- function(...) {{\n\n")
+  write_out('  tabsetPanel( ... ,\n')
 
   for (grp in levels(input_config_table$group)) {
     in_grp <- input_config_table$group == grp
@@ -78,27 +67,8 @@ parse_ui_table <- function() {
     input_config_table[in_grp, ] <- chunk
   }
 
-  write_out(
-    '\n',
-    '    ), width = 6 ), # end of sidebarPanel\n',
-    '\n',
-    '    mainPanel(\n',
-    '      h3("Model output"),\n',
-    '      p( paste("Generalized additive models (GAM) fit on", .pkgenv$input_config_table["inum","default"], "simulation runs.") ),\n',
-    '      tableOutput("table"),\n',
-    '      br(),\n',
-    '      plotOutput("icer_plot"),\n',
-    '      width = 6\n',
-    '    ) # end of mainPanel\n',
-    '\n',
-    '  ), # end of sidebarLayout\n',
-    '\n\n',
-    '  h3("DEBUG: PSA input"),\n',
-    '  verbatimTextOutput("status"),\n\n',
-    ")\n"
-  )
-
-  write_out("\n\n}}")
+  write_out('  )\n')
+  write_out('}}\n')
 
   ok <- input_config_table$valid
   dup <- ok
@@ -160,7 +130,7 @@ parse_chunk <- function(chunk) {
 #'    sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1)
 #'  ),
 #'
-write_chunk <- function(group, title = NULL, elements, .INDENT = 6) {
+write_chunk <- function(group, title = NULL, elements, .INDENT = 4) {
 
   tabs <- stringr::str_flatten(rep(" ",.INDENT))
 

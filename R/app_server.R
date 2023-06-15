@@ -46,8 +46,8 @@ app_server <- function(input, output, session) {
     plot(icer_strat,currency = "\uA3", label = "all")
   })
 
-  output$status <- renderPrint({
-    print(t(data.frame(mdl_inputs())))
-    # print(mdl_output())
-  })
+  # output$status <- renderPrint({
+  #   print(t(data.frame(mdl_inputs())))
+  #   # print(mdl_output())
+  # })
 }
