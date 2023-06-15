@@ -16,6 +16,7 @@ app_server <- function(input, output, session) {
 
   load_input_config(session)
 
+  # defaults might become reactive, if advanced mode is enabled
   defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
   names(defaults) <- basic_inputs
 
@@ -30,9 +31,8 @@ app_server <- function(input, output, session) {
     hideTab(inputId = "tabs", target = tab)
   }
 
-  output$intro_text <- renderText(random_text(nwords = 50))
-
-  mdl_inputs <- reactive( parse_inputs(input) )
+  used_inputs <- reactive( reactiveValuesToList(input)[basic_inputs] )
+  mdl_inputs <- reactive( parse_inputs(used_inputs()) )
   mdl_output <- reactive( run_basic_model(mdl_inputs()))
 
   output$table <- renderTable(
@@ -51,13 +51,30 @@ app_server <- function(input, output, session) {
   # Required by mod_save_load_reset_server:
   # call shinyjs::reset at startup, to populate input$`shinyjs-resettable-`
   shinyjs::reset()
+
+  # Custom downloader: include commented mdl_output table after as.yaml(used_inputs)
+  pkg = packageName()
+  downloader <- downloadHandler(
+    filename = paste0(pkg, "_session.", "yml"),
+    content = function(file) {
+      write(c(paste("#", pkg, packageVersion(pkg)),
+              paste0("# ",date()),
+              '',
+              '# Input:',
+              yaml::as.yaml(used_inputs()),
+              '',
+              "# Output:",
+              paste0("# ",capture.output(mdl_output()))
+      ), file)
+    }
+  )
+
   saved_inputs <- mod_save_load_reset_server("menu",
                                              main_session = session,
                                              defaults = defaults,
                                              ext = "yml",
-                                             downloader = NULL,
+                                             downloader = downloader,
                                              parser = NULL,
-                                             .filename = "dummy_session",
                                              .bookmark = c("main_tab", "tabs"))
 
   # output$status <- renderPrint({

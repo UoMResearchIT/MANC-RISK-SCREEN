@@ -32,20 +32,18 @@ run_basic_model <- function(input_vector) {
 #' `parse_inputs` - compile inputs into a list, names and units matching those
 #'    expected by cost & qualy's GAM objects.
 #'
-#' @param input reactive UI input (if missing, default values are returned).
+#' @param input_vector a named list of UI inputs (if missing, default values are returned).
 #' @return named list of inputs.
 #' @noRd
-parse_inputs <- function(input = NULL) {
+parse_inputs <- function(input_vector = NULL) {
 
   input_config_table <- .pkgenv$input_config_table
 
   ui_vars <- input_list("basic")
   defaults <- input_config_table[ui_vars,"default"]
 
-  if ( is.null(input) ) {
+  if ( is.null(input_vector) ) {
     input_vector <- defaults
-  } else {
-    input_vector <- reactiveValuesToList(input)[ui_vars]
   }
 
   # Resolve change of units, e.g. 5-year-survival to exponential param.
