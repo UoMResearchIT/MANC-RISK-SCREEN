@@ -1,14 +1,14 @@
 Package: MancRiskScreenUI
 Title: Manchester-Breast-Cancer-Model
-Version: 0.4.1.0
+Version: 0.5.0.0
 Authors@R: c(
-    person("Martin", "Herrerias", , "martin.herreriasazcue@manchester.ac.uk", role = "cre"),
     person("Stuart", "Wright", role = "aut"),
     person("Gabriel", "Rogers", role = "aut"),
     person("Katherine", "Payne", role = "aut"),
     person("Ewan", "Gray", role = "aut"),
     person("Anna", "Donten", role = "aut"),
     person("Rob", "Hainsworth", role = "aut"),
+    person("Martin", "Herrerias", , "martin.herreriasazcue@manchester.ac.uk", role = "cre"),
     person("University of Manchester Centre for Health Economics", role = c("cph", "fnd"))
   )
 Description: Discrete event simulation model of breast cancer screening on
