@@ -35,7 +35,7 @@ Mortality												Cancer and all cause mortality
 Cancer Growth												Cancer growth and staging	
 	risk_mat	file			synthetic_risk_data.csv							Synthetic dataset of breast density, 10 year, and lifetime breast cancer risk derived from PROCAS2 study	Fixed
 	metastatic_prob	table			data.frame(age=c(25,35,45,55,65,75,85), prob=c(0.046218154,0.086659039,0.109768116,0.127099924,0.142505975,0.159837783,1.73E-01))							Metastatic cancer probabilities by age	
-	stage_by_size_mat	table			data.frame("v1"=c(0.383,0.567,0.611,0.557,0,0), "v2"=c(0.033,0.111,0.180,0.208,0.723,0.563), "v3"=c(0.058,0.057,0.208,0.147,0.206,0.351), "v5"=c(0.525,0.265,0.120,0.088,0.071,0.086))							Nottingham Prognostic Indicator by cancer size	This is quite an important one but there is quite complex calculation underpinning it that might need people to send me data to reformat
+	stage_by_size_mat	table			data.frame(v1=c(0.383,0.567,0.611,0.557,0,0), v2=c(0.033,0.111,0.180,0.208,0.723,0.563), v3=c(0.058,0.057,0.208,0.147,0.206,0.351), v5=c(0.525,0.265,0.120,0.088,0.071,0.086))							Nottingham Prognostic Indicator by cancer size	This is quite an important one but there is quite complex calculation underpinning it that might need people to send me data to reformat
 	screen_detection_m	numeric			6.12	4	8					Mean doubling rate for tumours at screen detection	
 	screen_detection_sd	numeric			0.96							Standard deviation of the doubling rate for tumours at screen detection	
 	clin_detection_m	numeric			6.5	4	8					Mean doubling rate for tumours	
