@@ -1,21 +1,26 @@
 
-UPDATE_CSV = F
-UPDATE_CONFIG = F
+UPDATE_TSV = T
+UPDATE_CONFIG = T
 CHECK = T
-DEPLOY = F
+DEPLOY = T
 
-if ( UPDATE_CONFIG ){ file.remove("R/auto_generated_ui.R") }
+# Read boolean UPDATE_TSV, UPDATE_CONFIG, CHECK, DEPLOY
+if (file.exists("dev/deploy_config.R")) source("dev/deploy_config.R")
+
+golem::detach_all_attached()
+if ( UPDATE_CONFIG ) { file.remove("R/auto_generated_ui.R") }
 devtools::load_all()
 
 # Update csv copy of shared "inputs.xlsx"
-if ( UPDATE_CSV ){
+if ( UPDATE_TSV ) {
   config_table <- readxl::read_excel("../UoM/P086_Manc_Risk_Screen/dev/inputs.xlsx", sheet = "inputs")
-  write.table(config_table, "data-raw/input_config.csv", row.names = F, sep="\t", na="", quote = F)
+  write.table(config_table, "data-raw/input_config.tsv", row.names = F, sep = "\t", na = "", quote = F)
 }
 
 # Read input configuration file, updates global `input_config_table`
-if ( UPDATE_CONFIG ){
+if ( UPDATE_CONFIG ) {
 
+  # Update UI based on `data-raw/input_config.tsv`
   source("data-raw/parse_ui_table.R")
 
   # Update PSA_config table (used to set soft bounds for basic inputs)
@@ -36,7 +41,7 @@ if ( UPDATE_CONFIG ){
 }
 
 # Run checks
-if ( CHECK ){
+if ( CHECK ) {
   devtools::check()
   # rhub::check_for_cran()
 }
@@ -83,8 +88,6 @@ if ( DEPLOY ) {
   #   forceUpdate = TRUE
   # )
 
-  Sys.setenv(SHINYSENDER_SERVER="shiny.its.manchester.ac.uk")
-  Sys.setenv(SHINYSENDER_USER="m96523mh")
   shinysender::ss_uploadAddin()
 }
 

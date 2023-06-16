@@ -31,8 +31,8 @@ data("PSA_config", envir = .pkgenv)
 #'   \item{fixed}{ boolean, should the input be available for advanced users?}
 #'   \item{rel_min}{ soft minimum (set by `load_soft_bounds`) }
 #'   \item{rel_max}{ soft maximum (set by `load_soft_bounds`) }
-#'   \item{abs_min}{ hard minimum (read from `input_config.csv`) }
-#'   \item{abs_max}{ hard maximum (read from `input_config.csv`) }
+#'   \item{abs_min}{ hard minimum (read from `input_config.tsv`) }
+#'   \item{abs_max}{ hard maximum (read from `input_config.tsv`) }
 #'   \item{step}{ used for numeric & slider inputs }
 #'   \item{unit}{ used to allow conversion between PSA variables and UI fields, see `utils.R/parse_units` }
 #'   \item{notes}{ currently unused }

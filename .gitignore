@@ -17,3 +17,5 @@ man/*
 .DS_Store
 packrat/lib*/
 packrat/src/*
+
+dev/deploy_config.R

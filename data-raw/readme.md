@@ -6,7 +6,7 @@
 
 ## UI configuration workflow
 
--   `input_config.csv` holds the (editable) list of model inputs, input-types, limits, and their position within input groups.
+-   `input_config.tsv` holds the (editable) list of model inputs, input-types, limits, and their position within input groups.
 
 -   `parse_ui_table.R` reads this table, and saves a parsed version in `data/input_config_table.rda`. In the process, it generates code for the UI (`R/auto_generated_ui.R`), that matches the provided input configuration.
 
