@@ -4,8 +4,6 @@
 #' (set by `get_PSA_input_limits`), and calls required functions
 #' `updateSliderInput`, `updateNumericInput`, etc.
 #'
-#' @import glue
-#' @import utils
 #' @noRd
 load_input_config <- function(session, dryrun = F) {
 
@@ -65,6 +63,7 @@ parse_line <- function(line) {
   return( list(fun = typ$fun, args = args) )
 }
 
+#' @import shiny
 parse_type <- function(type) {
   typ <- switch(type,
     "slider" = list(

@@ -17,8 +17,7 @@ library(gsubfn)
 #'  used by functions in `R/utils.R` to identify model input types and
 #'  configurations.
 #'
-#' @import glue
-#' @import stringr
+#' @importFrom glue::glue
 #' @import gsubfn
 #' @noRd
 parse_ui_table <- function() {

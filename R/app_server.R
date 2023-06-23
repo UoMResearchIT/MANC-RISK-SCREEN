@@ -3,9 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @import shinipsum
-#' @import ggplot2
-#' @importFrom dampack calculate_icers
+#' @importFrom utils packageName packageVersion capture.output
 #' @noRd
 app_server <- function(input, output, session) {
   # Your application server logic
@@ -35,17 +33,12 @@ app_server <- function(input, output, session) {
   mdl_inputs <- reactive( parse_inputs(used_inputs()) )
   mdl_output <- reactive( run_basic_model(mdl_inputs()))
 
-  output$table <- renderTable(
-    mdl_output(),
-    rownames = TRUE
+  output$table <- gt::render_gt(
+    pretty_incCU_table(mdl_output()) %>% gt::tab_options(table.font.size = 11)
   )
 
   output$icer_plot <- renderPlot({
-    df <- mdl_output()
-    icer_strat <- dampack::calculate_icers(cost = df$cost,
-                                           effect = df$qualy,
-                                           strategies = row.names(df))
-    plot(icer_strat,currency = "\uA3", label = "all")
+    print(plot_ce_table(mdl_output()))
   })
 
   # Required by mod_save_load_reset_server:

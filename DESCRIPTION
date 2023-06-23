@@ -1,6 +1,6 @@
 Package: MancRiskScreenUI
 Title: Manchester-Breast-Cancer-Model
-Version: 0.5.0.0
+Version: 0.6.0.0
 Authors@R: c(
     person("Stuart", "Wright", role = "aut"),
     person("Gabriel", "Rogers", role = "aut"),
@@ -23,11 +23,9 @@ Depends:
 Imports: 
     config (>= 0.3.1),
     dplyr,
-    glue,
     golem (>= 0.4.0),
     magrittr,
     rlang,
-    shinipsum,
     shiny (>= 1.7.4),
     shinyFeedback,
     shinyjs,
@@ -36,12 +34,20 @@ Imports:
     tidyr,
     mgcv,
     ggplot2,
-    dampack
+    gt,
+    fs,
+    purrr,
+    scales,
+    yaml,
+    grid, 
+    stats, 
+    utils
 Suggests: 
     spelling,
     stringr,
     testthat (>= 3.0.0),
-    here
+    here,
+    glue
 Remotes:
     UoMResearchIT/r-shinysender,
     yonicd/covrpage

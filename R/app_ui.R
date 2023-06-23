@@ -3,18 +3,24 @@
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
 #' @import shiny
+#' @importFrom utils packageVersion packageDescription
 #' @noRd
 app_ui <- function(request) {
 
   app_title <- "MancRiskScreenUI"
-  pkg <- golem::pkg_name()
+  pkg <- "MancRiskScreenUI"
   n_runs <- .pkgenv$input_config_table["inum","default"]
 
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(app_title),
 
-    navbarPage(app_title, id = "main_tab",
+    navbarPage(title = app_title,
+               id = "main_tab",
+               selected = "About",
+               fluid = FALSE,
+               collapsible = TRUE,
+
       tabPanel("About",
         h1( paste(app_title, "-", packageVersion(pkg)) ),
         p( packageDescription(pkg)$Description )
@@ -25,7 +31,7 @@ app_ui <- function(request) {
         shinyjs::useShinyjs(debug = TRUE),
 
         fluidPage( sidebarLayout(
-          sidebarPanel( width = 6,
+          sidebarPanel( width = 5,
 
             fluidRow(style = 'margin-right: 3%;',
                      align = 'right',
@@ -33,17 +39,20 @@ app_ui <- function(request) {
             ),
             br(),
 
-            # tabPanel list, auto-generated from `input_config_table`
-            auto_generated_ui(id = "tabs", selected = "Utility")
+            # tabPanel list, auto-generated from `input_config_table` --------------
+
+              auto_generated_ui(id = "tabs", selected = "Utility")
+
+            # ----------------------------------------------------------------------
+
           ),
 
-          mainPanel(
+          mainPanel( width = 7,
             h3("Model output"),
             p( paste("Generalized additive models (GAM) fit on", n_runs, "simulation runs.") ),
-            tableOutput("table"),
+            gt::gt_output("table"),
             br(),
             plotOutput("icer_plot"),
-            width = 6
           )
         ),
 

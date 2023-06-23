@@ -24,6 +24,8 @@ input_list <- function(key) {
 #' @param key named subset of inputs: {"basic","advanced","fixed"}
 #' @return list of input ids in the corresponding list
 #'
+#' @importFrom magrittr %>%
+#' @importFrom dplyr summarise group_by
 #' @noRd
 input_groups <- function(key) {
 

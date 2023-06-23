@@ -6,8 +6,7 @@
 #' NEEDS PROPPER DOCUMENTATION!
 #'
 #' @importFrom magrittr %>%
-#' @importFrom tibble tribble
-#' @import dplyr
+#' @importFrom dplyr select contains group_by mutate first arrange bind_cols across ungroup bind_rows filter
 #' @return table with columns {"Yr", "Stage", "Age", "Cost", "DCost",
 #'  "DCost.i", "disc", "DCost.i.d", "CDCost.i.d", "Yr1", "Yr2", "Yr3"},
 #'  whose meaning is known only to the chosen ones.
