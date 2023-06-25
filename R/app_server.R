@@ -34,11 +34,11 @@ app_server <- function(input, output, session) {
   mdl_output <- reactive( run_basic_model(mdl_inputs()))
 
   output$table <- gt::render_gt(
-    pretty_incCU_table(mdl_output()) %>% gt::tab_options(table.font.size = 11)
+    pretty_incCU_table(mdl_output(), input$wtp*1000) %>% gt::tab_options(table.font.size = 11)
   )
 
   output$icer_plot <- renderPlot({
-    print(plot_ce_table(mdl_output()))
+    print(plot_ce_table(mdl_output(), input$wtp*1000))
   })
 
   # Required by mod_save_load_reset_server:

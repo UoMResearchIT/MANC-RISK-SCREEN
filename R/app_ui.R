@@ -48,8 +48,19 @@ app_ui <- function(request) {
           ),
 
           mainPanel( width = 7,
-            h3("Model output"),
-            p( paste("Generalized additive models (GAM) fit on", n_runs, "simulation runs.") ),
+            fluidRow(
+              column(width = 9, tagList(
+                h3("Model output"),
+                p( paste("Generalized additive models (GAM) fit on", n_runs, "simulation runs.") )
+              )),
+              column(width = 3,
+                shiny::numericInput("wtp","Value of 1 QALY (k\uA3)",20,0,50,1)
+              )
+            ),
+            # fluidRow(style = 'margin-right: 3%;',
+            #          align = 'right',
+            #          shiny::numericInput("wtp","Value of 1 QALY (k\uA3)",20,0,50,1)
+            # ),
             gt::gt_output("table"),
             br(),
             plotOutput("icer_plot"),

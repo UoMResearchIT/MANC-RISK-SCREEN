@@ -6,20 +6,16 @@
 #' @param Names strategy labels
 #' @param Costs vector of costs (GBP)
 #' @param QALYs vector of QALYs
-#' @param WTP reference Willingness to Pay, default c(20e3,30e3)
-#' @param blnNHB (boolean) add columns for Net Health Benefit? default is `TRUE` if `WTP` available
 #'
 #' @return a `tibble` with columns: `stratName`, `Cost`, `QALY`, `dom`, `extdom`,
 #'  `comp`, `IncCost`, `IncQALY`, `ICER`, and `ID`. Additionally, for each `WTP` value `j`,
 #'  there will be a pair of columns `NHBj` and `rankNHBj`.
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr arrange mutate select across rowwise starts_with row_number desc
+#' @importFrom dplyr arrange mutate select row_number
 get_incCU_table <- function(Names,
                            Costs,
-                           QALYs,
-                           WTP = c(20000,30000),
-                           blnNHB = !rlang::is_empty(WTP)) {
+                           QALYs) {
 
   IncCU <- tibble::tibble(
     StratName = Names,
@@ -50,29 +46,21 @@ get_incCU_table <- function(Names,
           (IncCU$Cost[(i + 1):nn] - IncCU$Cost[comp]) / (IncCU$QALY[(i + 1):nn] - IncCU$QALY[comp]) < IncCU$ICER[i]
       )
   }
-
-  if (blnNHB) {
-    WTP <- as.numeric(WTP)
-    IncCU %<>%
-      rowwise() %>%
-      mutate(NHB = purrr::map2(.data$Cost, .data$QALY, ~ (QALY - Cost / WTP) %>%
-                                        setNames(paste0("NHB", WTP)))) %>%
-      tidyr::unnest_wider("NHB") %>%
-      mutate(across(starts_with("NHB"), ~ rank(desc(.x)), .names = "rank{.col}"))
-  }
   IncCU
 }
 
 #' `pretty_incCU_table`
 #'
 #' @param IncCU the result of `get_incCU_table`
+#' @param WTP reference Willingness to Pay, default 20e3
 #' @param .costDP,.qalyDP,.icerDP display digits for Cost, QALY, and ICER variables
 #'
 #' @return a `gt` rendered and formated version of `IncCU`
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate case_when select contains starts_with across row_number rowwise
+#' @importFrom dplyr mutate case_when select row_number desc
 #' @importFrom gt gt cols_label cols_label_with tab_spanner cols_align opt_horizontal_padding opt_table_font
 pretty_incCU_table <- function(IncCU,
+                               WTP = 20e3,
                                .costDP = dp(IncCU$Cost, 2),
                                .qalyDP = dp(IncCU$QALY, 2),
                                .icerDP = dp(IncCU$ICER, 2)) {
@@ -80,7 +68,7 @@ pretty_incCU_table <- function(IncCU,
   dp <- function(x, .min = 0, .N = 2) max(.min, round(.N - log10(stats::sd(x))))
   fmt <- function(x, DP) format(round(x, DP), nsmall = DP, big.mark = ",")
 
-  IncCU %>%
+  IncCU %<>%
     mutate(
       strCost = fmt(.data$Cost, .costDP),
       strQALY = fmt(.data$QALY, .qalyDP),
@@ -90,8 +78,12 @@ pretty_incCU_table <- function(IncCU,
         .data$dom ~ "dominated",
         .data$extdom ~ "extendedly dominated",
         .default = fmt(.data$ICER, .icerDP)
-      )
-    ) %>%
+      ),
+      NHB = .data$QALY - .data$Cost / WTP,
+      rank = rank(desc(.data$NHB))
+    )
+
+  IncCU %>%
     select("ID",
                 "StratName",
                 "strCost",
@@ -99,7 +91,8 @@ pretty_incCU_table <- function(IncCU,
                 "strIncCost",
                 "strIncQALY",
                 "strICER",
-                contains("NHB")) %>%
+                "NHB",
+                "rank") %>%
     gt() %>%
     cols_label(
       StratName = "Strategy",
@@ -107,18 +100,12 @@ pretty_incCU_table <- function(IncCU,
       strQALY = "Effects\n(QALYs)",
       strIncCost = "Costs\n(\uA3)",
       strIncQALY = "Effects\n(QALYs)",
-      strICER = "ICER\n(\uA3/QALY)"
+      strICER = "ICER\n(\uA3/QALY)",
+      NHB = paste0("NHB\n(\uA3", WTP / 1000, "K/QALY)"),
+      rank = paste0("NHB rank\n(\uA3", WTP / 1000, "K/QALY)")
     ) %>%
-    cols_label_with(starts_with("NHB"),
-                        ~ paste0("\uA3", as.numeric(stringr::str_sub(.x, 4)) / 1000, "K/QALY")) %>%
-    cols_label_with(starts_with("rankNHB"),
-                        ~ paste0("\uA3", as.numeric(stringr::str_sub(.x, 8)) / 1000, "K/QALY")) %>%
     tab_spanner(label = "Incremental",
                     columns = c("strIncCost", "strIncQALY", "strICER")) %>%
-    tab_spanner(label = "Net health benefit",
-                    columns = starts_with("NHB")) %>%
-    tab_spanner(label = "Rank",
-                    columns = starts_with("rankNHB")) %>%
     cols_align(align = "center",
                    columns = -c("StratName")) %>%
     opt_horizontal_padding(scale = 2) %>%
