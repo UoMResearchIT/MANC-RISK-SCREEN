@@ -132,7 +132,7 @@ pretty_incCU_table <- function(IncCU,
 #'
 #' @importFrom magrittr %>%
 #' @importFrom ggplot2 ggplot aes scale_x_continuous scale_y_continuous sec_axis theme theme_minimal unit %+replace% .pt
-#' @importFrom ggplot2 element_text element_blank geom_abline geom_text geom_hline geom_vline geom_line geom_point geom_text
+#' @importFrom ggplot2 element_text element_blank geom_abline geom_text geom_hline geom_vline geom_line geom_point geom_text geom_segment
 #' @importFrom dplyr filter
 plot_ce_table <- function(IncCU, WTP = NULL) {
 
@@ -144,7 +144,7 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
                   dots = cbPalette[3],
                   reflines = "gray80",
                   labels = "white",
-                  axes = cbPalette[5])
+                  axes = "black")
 
   .widths = list(axes = 1.0,
                  reflines = 0.5,
@@ -165,30 +165,20 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
   ax.x <- fnAxisScale(min(IncCU$QALY), max(IncCU$QALY))
   ax.y <- fnAxisScale(origin.y, max(IncCU$Cost))
 
+  x.breaks <- seq(ax.x$dMin, ax.x$dMax, ax.x$dMajor)
+
   plt <- IncCU %>% ggplot(aes(x = .data$QALY, y = .data$Cost)) +
     scale_x_continuous(
       limits = c(ax.x$dMin, ax.x$dMax * 1.000000001),
-      breaks = seq(ax.x$dMin, ax.x$dMax, ax.x$dMajor),
+      breaks = x.breaks,
       labels = seq(ax.x$dMin, ax.x$dMax, ax.x$dMajor),
-      name = "\nQALYs",
-      sec.axis = sec_axis(
-        trans = ~ . - origin.x,
-        name = "Incremental QALYs\n",
-        breaks =  seq_through(ax.x$dMin - origin.x, ax.x$dMax - origin.x, 0, ax.x$dMajor),
-        labels = scales::number_format(prefix = "\uA3", big.mark = ",")
-      )
+      name = "\nQALYs"
     ) +
     scale_y_continuous(
       limits = c(ax.y$dMin, ax.y$dMax * 1.000000001),
       breaks = seq(ax.y$dMin, ax.y$dMax, ax.y$dMajor),
       labels = scales::number_format(prefix = "\uA3", big.mark = ","),
-      name = "Costs\n",
-      sec.axis = sec_axis(
-        trans = ~ . - origin.y,
-        name = "\nIncremental Cost",
-        breaks = seq_through(ax.y$dMin - origin.y, ax.y$dMax - origin.y, 0, ax.y$dMajor),
-        labels = scales::number_format(prefix = "\uA3", big.mark = ",")
-      )
+      name = "Costs\n"
     ) +
     theme_minimal() %+replace% theme(
       # panel.grid.major = element_blank(),
@@ -202,6 +192,9 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
       axis.title = element_text(face = "bold"),
       # axis.ticks = element_blank()
     )
+
+  plt.height <- unit(0, 'npc') %>% grid::convertY('native', valueOnly = T)
+  plt.width <- unit(1, 'npc') %>% grid::convertX('native', valueOnly = T)
 
   if (!is.null(WTP)) {
 
@@ -218,50 +211,29 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
         colour = .colours$reflines,
         lty = "longdash",
         linewidth = .widths$reflines
-      ) +
-      geom_text(
-        label = paste0("\uA3", WTP / 1000, "k / QALY"),
-        aes(x = origin.x + 2*ax.y$dMajor/WTP,
-                     y = origin.y + 2*ax.y$dMajor),
-        angle = atan(
-          WTP / (ax.y$dMax - ax.y$dMin) * (ax.x$dMax - ax.x$dMin) *
-            unit(0, 'npc') %>% grid::convertY('native', valueOnly = T) /
-            unit(1, 'npc') %>% grid::convertX('native', valueOnly = T)
-            # 0.95 # TODO: fix small offset, maybe 'npc' includes axes labels?
-        ) * 180 / pi,
-        hjust = 0,
-        vjust = -0.3,
-        colour = .colours$reflines,
-        size = 10/.pt,
-        fontface = "italic",
-        show.legend = FALSE,
-        inherit.aes = TRUE
       )
   }
 
-  # Add tick marks
-  # ticklen.x <- (ax.x$dMax - ax.x$dMin) / 50
-  # ticklen.y <- (ax.y$dMax - ax.y$dMin) / 50
-  # tblXT <- data.frame(x = ggplot_build(plt)$layout$panel_params[[1]]$x.sec$get_breaks())
-  # tblYT <- data.frame(y = ggplot_build(plt)$layout$panel_params[[1]]$y.sec$get_breaks())
-  #
-  # plt <- plt +
-  #   geom_segment(data = tblXT,
-  #                aes(x = x,
-  #                    xend = x,
-  #                    y = origin.y - ticklen.y,
-  #                    yend = origin.y + ticklen.y),
-  #                linewidth = .widths$axes) +
-  #   geom_segment(data = tblYT,
-  #                aes(x = origin.x - ticklen.x,
-  #                    xend = origin.x + ticklen.x,
-  #                    y = y,
-  #                    yend = y),
-  #                linewidth = .widths$axes)
+  ticklen.x <- (ax.x$dMax - ax.x$dMin) / 100 * min(plt.width, plt.height) / plt.width
+  ticklen.y <- (ax.y$dMax - ax.y$dMin) / 100 * min(plt.width, plt.height) / plt.height
+  tblXT <- data.frame(x = seq_through(ax.x$dMin, ax.x$dMax, origin.x, ax.x$dMajor))
+  tblYT <- data.frame(y = seq_through(ax.y$dMin, ax.y$dMax, origin.y, ax.y$dMajor))
 
   plt <- plt +
     geom_hline(yintercept = origin.y, linewidth = .widths$axes, colour = .colours$axes) +
     geom_vline(xintercept = origin.x, linewidth = .widths$axes, colour = .colours$axes) +
+    geom_segment(data = tblXT,
+                 aes(x = .data$x,
+                     xend = .data$x,
+                     y = origin.y - ticklen.y,
+                     yend = origin.y + ticklen.y),
+                 linewidth = .widths$axes) +
+    geom_segment(data = tblYT,
+                 aes(x = origin.x - ticklen.x,
+                     xend = origin.x + ticklen.x,
+                     y = .data$y,
+                     yend = .data$y),
+                 linewidth = .widths$axes) +
 
     # Main layer
     geom_line(
