@@ -52,6 +52,9 @@ get_PSA_input_limits <- function(.MIN_STEPS = 50) {
   lo <- mapply(custom_round, lo, step, MoreArgs = list(op = ceiling))
   hi <- mapply(custom_round, hi, step, MoreArgs = list(op = floor))
 
+  input_config_table$rel_min = as.numeric(input_config_table$rel_min)
+  input_config_table$rel_max = as.numeric(input_config_table$rel_max)
+
   input_config_table[var_names, "rel_min"] <- lo
   input_config_table[var_names, "rel_max"] <- hi
 

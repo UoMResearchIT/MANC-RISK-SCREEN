@@ -12,11 +12,15 @@ app_server <- function(input, output, session) {
   advanced_inputs <- input_list("advanced")
   fixed_inputs <- input_list("fixed")
 
-  load_input_config(session)
+  # load_input_config(session)
 
   # defaults might become reactive, if advanced mode is enabled
   defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
   names(defaults) <- basic_inputs
+
+  # defaults might become reactive, if advanced mode is enabled
+  limits <- .pkgenv$input_config_table[basic_inputs,c("rel_min","rel_max")]
+  rownames(limits) <- basic_inputs
 
   #lapply(advanced_inputs,shinyjs::disable)
   lapply(advanced_inputs,shinyjs::hide)
@@ -40,6 +44,25 @@ app_server <- function(input, output, session) {
   output$icer_plot <- renderPlot({
     print(plot_ce_table(mdl_output(), input$wtp*1000))
   })
+
+  observeEvent(used_inputs(), {
+
+    val <- used_inputs()
+    out_of_range <- (val > limits$rel_max) | (val < limits$rel_min)
+    for (iid in basic_inputs[out_of_range]) {
+      shinyFeedback::showFeedbackWarning(inputId = iid,
+                                         paste0(
+                                           "Extrapolating beyond data [",
+                                           limits[iid,"rel_min"],
+                                           ", ",
+                                           limits[iid,"rel_max"],
+                                           "]"
+                                         ))
+    }
+    for (iid in basic_inputs[!out_of_range]) {
+      shinyFeedback::hideFeedback(iid)
+    }
+  }, ignoreInit = TRUE)
 
   # Required by mod_save_load_reset_server:
   # call shinyjs::reset at startup, to populate input$`shinyjs-resettable-`
