@@ -11,12 +11,15 @@ library(glue)
 #' Features like limits, slider steps, and visibility are set dynamically by `load_input_config`,
 #' and are set by `get_PSA_input_limits`.
 #'
-#' @export `R/auto_generated_ui.R` function code returning a `tabsetPanel`
+#' @returns `R/auto_generated_ui.R` function code returning a `tabsetPanel`
 #'  object, to be used in `app_ui.R`, using `auto_generated_ui(id, ...)`
 #'
-#' @export `data/input_config_table.rda` parsed table, which is
+#' @returns `data/input_config_table.rda` parsed table, which is
 #'  used by functions in `R/utils.R` to identify model input types and
 #'  configurations.
+#'
+#' @returns `data/relative_limits.rda` a binary matrix encoding relations between inputs, namely:
+#'  `relative_limits[i,j] == 1` implies the condition: input[i] > input[j]
 #'
 #' @importFrom glue::glue
 #' @import gsubfn
@@ -48,6 +51,8 @@ parse_ui_table <- function() {
   input_config_table$valid <- !sapply(input_config_table$id, is.empty)
   input_config_table$basic <- grepl("[xty1]+", input_config_table$basic, ignore.case = T)
   input_config_table$fixed <- grepl("[xty1]+", input_config_table$fixed, ignore.case = T)
+
+  list[relative_limits, input_config_table] <- relative_limit_matrix(input_config_table)
 
   # main --------------------------------------------------------------------
 
@@ -85,6 +90,9 @@ parse_ui_table <- function() {
 
   # add_use_data("input_config_table" = input_config_table)
   usethis::use_data(input_config_table, internal = F, overwrite = T)
+
+  # add_use_data("input_config_table" = input_config_table)
+  usethis::use_data(relative_limits, internal = F, overwrite = T)
 }
 
 is.empty <- function(x) {
@@ -200,6 +208,52 @@ assign_groups <- function(config_table) {
   return(config_table)
 }
 
+#' Return a sparse matrix `relative_limits` to keep track of relative limits. Let:
+#'
+#' `relative_limits[i,j] == 1` encode the condition: input[i] > input[j]
+#'
+#' @param input_config_table
+#' @return `list[relative_limits, input_config_table]`
+#' @noRd
+relative_limit_matrix <- function(input_config_table) {
+
+  tbl <- input_config_table[input_config_table$valid,c("rel_min","rel_max")]
+  id_list <- input_config_table$id[input_config_table$valid]
+  rownames(tbl) <- id_list
+  rownames(input_config_table)[input_config_table$valid] <- id_list
+
+  n <- nrow(tbl)
+  relative_limits <- matrix(0, nrow = n, ncol = n)
+  colnames(relative_limits) <- id_list
+  rownames(relative_limits) <- id_list
+
+  for (j_id in id_list[!sapply(tbl$rel_max, is.empty)]) {
+
+    i_id <- tbl[j_id,"rel_max"]
+
+    if (i_id %in% id_list) {
+      relative_limits[i_id, j_id] <- 1
+      input_config_table[j_id,"rel_max"] <- NA
+    } else {
+      warning("Cannot resolve relative max: '", i_id, "' for ", id_list[j_id])
+    }
+  }
+
+  for (j_id in id_list[!sapply(tbl$rel_min, is.empty)]) {
+
+    i_id <- tbl[j_id,"rel_min"]
+
+    if (i_id %in% id_list) {
+      relative_limits[j_id, i_id] <- 1
+      input_config_table[j_id,"rel_min"] <- NA
+    } else {
+      warning("Cannot resolve relative min: '", i_id, "' for ", id_list[j_id])
+    }
+  }
+
+  return(list(relative_limits, input_config_table))
+}
+
 #' Parse a line of `input_config_table` representing a UI input.
 #'
 #' @param line a single line (named list) of `input_config_table`
@@ -224,7 +278,7 @@ parse_line <- function(line) {
   line$valid <- !any(is.empty(line[c("id", "description", "default")]))
 
   if (!line$valid) {
-    msg <- stringr::str_flatten_comma(line[!is.empty(line)])
+    msg <- custom_flatten(line[!is.empty(line)])
     out <- super_glue("# INVALID: {msg}")
     return(list(out, line))
   }
@@ -262,7 +316,7 @@ parse_line <- function(line) {
   } else if (grepl("check|bool|logic", line$type, ignore.case = T)) {
     out <- super_glue('checkboxInput("{line$id}","{line$description}", value = {line$default})')
     line$type <- "checkbox"
-  } else if (grepl("table|matrix", line$type, ignore.case = T)) {
+  } else if (grepl("table|matrix|vector", line$type, ignore.case = T)) {
     out <- super_glue(
       'shinyMatrix::matrixInput("{line$id}", value = data.matrix({line$default},rownames.force=F),\n',
       '                         rows = list(names = F, editableNames = F),\n',
@@ -289,8 +343,8 @@ parse_line <- function(line) {
     # PROVISIONAL: just add file name
     out <- super_glue('textInput("{line$id}","{line$description}")')
   } else {
-    msg <- stringr::str_flatten_comma(line[!is.empty(line)])
-    out <- super_glue("# UNKNOWN: {msg}")
+    out <- c(glue("# UNKNOWN input type '{line$type}' for '{line$id}'"), out)
+    warning(out)
     line$valid <- FALSE
   }
 
@@ -337,48 +391,34 @@ parse_numeric <- function(line) {
       stop('Expecting "min" | "max"')
     }
 
-    rel_lim <- line[[paste0("rel_", minmax)]]
     abs_lim <- line[[paste0("abs_", minmax)]]
-
-    if (!is.empty(rel_lim) && !is.numeric.ish(rel_lim)) {
-      # TODO: dynamic constraints
-      # updateSliderInput(inputId = "n", min = input$min)
-
-      rel_lim <- NA
-      warning("Unhandled relative min for input: ", line$id)
-    }
-
-    rel_lim <- as.numeric(ifelse(is.numeric.ish(rel_lim), rel_lim, NA))
     abs_lim <- as.numeric(ifelse(is.numeric.ish(abs_lim), abs_lim, NA))
-
-    rel_lim <- custom_round(rel_lim, line$step, round_op)
     abs_lim <- custom_round(abs_lim, line$step, round_op)
 
-    if (!is.na(abs_lim) && !is.na(rel_lim)) {
-      rel_lim <- min(abs_lim, rel_lim)
-    }
-
     arg <- c()
-    if (!is.na(rel_lim)) {
-      arg <- glue(minmax, " = {rel_lim}")
-    } else if (!is.na(abs_lim)) {
+    if (!is.na(abs_lim)) {
       arg <- glue(minmax, " = {abs_lim}")
     } else if (is.slider) {
       warning("Missing min for sliderInput: ", line$id)
     }
 
-    line[[paste0("rel_", minmax)]] <<- rel_lim
     line[[paste0("abs_", minmax)]] <<- abs_lim
     return(arg)
   }
 
   args <- c(args, parse_lim("min"))
   args <- c(args, parse_lim("max"))
-  args <- glue(stringr::str_flatten_comma(args))
+  args <- glue(custom_flatten(args))
 
   return(list(args, line))
 }
 
+custom_flatten <- function(arg) {
+  if (!is.atomic(arg)) {
+    browser()
+  }
+  stringr::str_flatten_comma(arg)
+}
 
 # main ------------------------------------------------------------------------------------------------------------
 

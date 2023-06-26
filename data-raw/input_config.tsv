@@ -4,7 +4,6 @@ Simulation												Simulation parameters
 	jnum			x								Number of simulated lifetimes per woman	Not used - not functional in the model but removing causes issues
 													
 Strategy												Screening programme and related parameters	
-	screen_strategy	select			3			1	6	1		Screening strategy	GAM model runs for all (6) base strategies
 	supplemental_screening	check		x	0							When switched on adds MRI and ultrasound screening for women with dense breasts	
 	start_age	slider		x	38			24	60	1		Age of an individual at start of simulation	Values below 24 may produce misleading results as tumours don't have enough time to develop correctly
 	time_horizon			x	100			100				Max age in the model (100)	This can be fixed as there are some hard checks in the model

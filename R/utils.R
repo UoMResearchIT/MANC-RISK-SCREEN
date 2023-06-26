@@ -155,3 +155,83 @@ custom_round <- function(x, step = NULL, op = round, digits = 4) {
 
   return(op(x / step) * step)
 }
+
+#' Extract an out-of-range check function and error messages from `input_config_table` soft limits
+#'
+#' @param vars list of (selected) inputs, e.g. from `input_list(KEY)`
+#' @return `list(msg,check)` where `check` is a function, that returns a boolean out-of-range value,
+#'  given a vector of values for variables `vars`; and `msg` is a list of out-of-range error messages
+parse_soft_limits <- function(vars) {
+
+  limits <- .pkgenv$input_config_table[vars,c("rel_min","rel_max")]
+  rownames(limits) <- vars
+
+  # Prepare warning messages for out-of-range variables
+  msg <- lapply(vars,
+    function(id)
+      paste0("Extrapolating beyond data [", limits[id, "rel_min"], ", ", limits[id, "rel_max"], "]")
+  )
+
+  check <- function(val){
+    out_of_range <- (val > limits$rel_max) | (val < limits$rel_min)
+  }
+
+  return(list(check = check, msg = msg))
+}
+
+#' Extract an out-of-range check function and error messages from the `relative_limits` matrix.
+#'
+#' @param vars list of (selected) inputs, e.g. from `input_list(KEY)`
+#' @return `list(msg,check)` where `check` is a function, that returns a boolean out-of-range value,
+#'  given a vector of values for variables `vars`; and `msg` is a list of out-of-range error messages
+parse_relative_limits <- function(vars) {
+
+  rel_matrix <- .pkgenv$relative_limits[vars, vars]
+
+  # relative_limits[i,j] == 1 implies that input[i] > input[j]
+  has_relative_min <- (rowSums(rel_matrix) > 0)
+  has_relative_max <- (colSums(rel_matrix) > 0)
+
+  # Prepare out of range messages
+  msg <- rep("",length(vars))
+  names(msg) <- vars
+  for (j in which(has_relative_min | has_relative_max)) {
+
+    if (any(rel_matrix[j,] > 0)) {
+      rel.min <- stringr::str_flatten_comma(vars[which(rel_matrix[j,] > 0)], last = " and ")
+    } else {
+      rel.min <- NULL
+    }
+
+    if (any(rel_matrix[,j] > 0)) {
+      rel.max <- stringr::str_flatten_comma(vars[which(rel_matrix[,j] > 0)], last = " and ")
+    } else {
+      rel.max <- NULL
+    }
+
+    if (!(is.null(rel.min))) {
+      if (!is.null(rel.max)) {
+        msg[j] <- paste("Expected", rel.min, "<", vars[j], "<", rel.max)
+      } else {
+        msg[j] <- paste("Expected", rel.min, "<", vars[j])
+      }
+    } else {
+      msg[j] <- paste("Expected", vars[j], "<", rel.max)
+    }
+  }
+
+  check = function(val) {
+    v <- matrix(as.numeric(val), ncol = 1)
+    rel.min <- rel_matrix[has_relative_min, ] %*% v
+    rel.max <- t(rel_matrix[, has_relative_max]) %*% v
+
+    out_of_range <- has_relative_min | has_relative_max
+    out_of_range[has_relative_min] <- (val[has_relative_min] < rel.min)
+    out_of_range[has_relative_max] <- (val[has_relative_max] > rel.max)
+
+    return(out_of_range)
+  }
+
+  return(list(check = check, msg = msg))
+}
+

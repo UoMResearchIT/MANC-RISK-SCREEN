@@ -12,15 +12,15 @@ app_server <- function(input, output, session) {
   advanced_inputs <- input_list("advanced")
   fixed_inputs <- input_list("fixed")
 
+  # Prepare out-of-range check functions and error messages for basic inputs
+  abs_lim <- parse_soft_limits(basic_inputs)
+  rel_lim <- parse_relative_limits(basic_inputs)
+
   # load_input_config(session)
 
   # defaults might become reactive, if advanced mode is enabled
   defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
   names(defaults) <- basic_inputs
-
-  # defaults might become reactive, if advanced mode is enabled
-  limits <- .pkgenv$input_config_table[basic_inputs,c("rel_min","rel_max")]
-  rownames(limits) <- basic_inputs
 
   #lapply(advanced_inputs,shinyjs::disable)
   lapply(advanced_inputs,shinyjs::hide)
@@ -48,20 +48,34 @@ app_server <- function(input, output, session) {
   observeEvent(used_inputs(), {
 
     val <- used_inputs()
-    out_of_range <- (val > limits$rel_max) | (val < limits$rel_min)
-    for (iid in basic_inputs[out_of_range]) {
-      shinyFeedback::showFeedbackWarning(inputId = iid,
-                                         paste0(
-                                           "Extrapolating beyond data [",
-                                           limits[iid,"rel_min"],
-                                           ", ",
-                                           limits[iid,"rel_max"],
-                                           "]"
-                                         ))
+    out_of_abs_range <- abs_lim$check(val)
+    out_of_rel_range <- rel_lim$check(val)
+
+    both_out <- out_of_abs_range & out_of_rel_range
+    out_of_rel_range <- out_of_rel_range & !both_out
+    out_of_abs_range <- out_of_abs_range & !both_out
+
+    # Clear all feedback
+    sapply(basic_inputs, shinyFeedback::hideFeedback)
+
+    if (any(both_out)) {
+      mapply(shinyFeedback::showFeedbackDanger,
+             basic_inputs[both_out],
+             mapply(paste, rel_lim$msg[both_out], abs_lim$msg[both_out], sep = ". "))
     }
-    for (iid in basic_inputs[!out_of_range]) {
-      shinyFeedback::hideFeedback(iid)
+
+    if (any(out_of_rel_range)) {
+      mapply(shinyFeedback::showFeedbackDanger,
+             basic_inputs[out_of_rel_range],
+             rel_lim$msg[out_of_rel_range])
     }
+
+    if (any(out_of_abs_range)) {
+      mapply(shinyFeedback::showFeedbackWarning,
+             basic_inputs[out_of_abs_range],
+             abs_lim$msg[out_of_abs_range])
+    }
+
   }, ignoreInit = TRUE)
 
   # Required by mod_save_load_reset_server:

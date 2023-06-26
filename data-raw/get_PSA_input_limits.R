@@ -2,7 +2,8 @@
 #'
 #' @return Overwrites columns `rel_min` and `rel_max` of `input_config_table`
 #'
-get_PSA_input_limits <- function(.MIN_STEPS = 50) {
+get_PSA_input_limits <- function(.MIN_REL_STEPS = 10,
+                                 .MIN_ABS_STEPS = 50) {
 
   input_config_table <- .pkgenv$input_config_table
   PSA_config <- .pkgenv$PSA_config
@@ -20,6 +21,8 @@ get_PSA_input_limits <- function(.MIN_STEPS = 50) {
   hi <- apply(PSA_config[, var_names], 2, max)
 
   def <- input_config_table[var_names, "default"]
+  abs.lo <- input_config_table[var_names, "abs_min"]
+  abs.hi <- input_config_table[var_names, "abs_max"]
 
   # Handle unit-conversion cases (mismatch between UI and PSA_config)
   units <- input_config_table[var_names, "unit"]
@@ -29,7 +32,10 @@ get_PSA_input_limits <- function(.MIN_STEPS = 50) {
   # Make sure lo < hi (might not be the case after unit conversion)
   list[lo, hi] <- list( pmin(lo, hi), pmax(lo, hi) )
 
-  out_of_bounds <- !(def > lo & def < hi)
+  abs.lo <- min(lo, abs.lo)
+  abs.hi <- max(hi, abs.hi)
+
+  out_of_bounds <- !(def > abs.lo & def < abs.hi)
   if ( any(out_of_bounds) ) {
     warning('Inconsistent PSA range for ',
             stringr::str_flatten_comma(var_names[out_of_bounds]))
@@ -37,12 +43,11 @@ get_PSA_input_limits <- function(.MIN_STEPS = 50) {
 
   step <- input_config_table[var_names, "step"]
 
-  steps_too_small <- (hi - lo) / step < .MIN_STEPS
-  steps_too_small[is.na(steps_too_small)] <- FALSE
+  n <- mapply(min, (hi - lo) / (step * .MIN_REL_STEPS), (abs.hi - abs.lo) / (step * .MIN_ABS_STEPS))
+  steps_too_small <- is.na(n) | n < 1
 
   if ( any(steps_too_small) ) {
-    dx <- (hi - lo)[steps_too_small] / .MIN_STEPS
-    step[steps_too_small] <- 10^(ceiling(log10(dx) - 1))
+    step[steps_too_small] <- 10^(ceiling(log10(n[steps_too_small]) - 1))
 
     warning('Reduced step size for ',
             stringr::str_flatten_comma(var_names[steps_too_small]))
@@ -57,6 +62,7 @@ get_PSA_input_limits <- function(.MIN_STEPS = 50) {
 
   input_config_table[var_names, "rel_min"] <- lo
   input_config_table[var_names, "rel_max"] <- hi
+  input_config_table[var_names, "step"] <- step
 
   usethis::use_data(input_config_table, internal = FALSE, overwrite = TRUE)
 }
