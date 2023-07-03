@@ -135,7 +135,9 @@ parse_chunk <- function(chunk) {
 #'  tabPanel(title = "group",
 #'    h3("title"),
 #'    numericInput("foo", "Foo?", value = 42),
-#'    sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1)
+#'    sliderInput("bar", "Bar?", value = 0.5, min = 0, max = 1),
+#'    ...
+#'    uiOutput("group")
 #'  ),
 #'
 write_chunk <- function(group, title = NULL, elements, .INDENT = 4) {
@@ -162,22 +164,20 @@ write_chunk <- function(group, title = NULL, elements, .INDENT = 4) {
   for (j in seq_along(elements)) {
     msg <- elements[[j]]
     if (startsWith(msg, "#")) {
-      write_out(tabs,"  {msg}\n")
+      write_out(tabs, "  {msg}\n")
     } else {
-      write_out(indented(msg))
+      write_out(indented(msg),",\n")
       # write_out(tabs,'  column(\n',
       #           tabs,'    width=NCOL,\n',
       #           indented(msg),'\n',
       #            tabs,'  )')
-      if (any(!is_comment[-(1:j)])) {
-        write_out(",\n")
-      } else {
-        write_out("\n")
-      }
     }
   }
 
-  if (!all(is_comment)) write_out(tabs,"),\n")
+  if (!all(is_comment)) {
+    write_out(tabs, '  uiOutput("', make.names(tolower(group)), '.widget")\n')
+    write_out(tabs, "),\n")
+  }
 }
 
 #' Make sure each input is assigned to a group, and they are sorted
