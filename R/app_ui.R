@@ -7,7 +7,7 @@
 #' @noRd
 app_ui <- function(request) {
 
-  app_title <- "MancRiskScreenUI"
+  app_title <- "MANC-RISK-SCREEN"
   pkg <- "MancRiskScreenUI"
   n_runs <- .pkgenv$input_config_table["inum","default"]
 
@@ -23,7 +23,7 @@ app_ui <- function(request) {
 
       tabPanel("About",
         h1( paste(app_title, "-", packageVersion(pkg)) ),
-        p( packageDescription(pkg)$Description )
+        div(includeMarkdown("inst/about.md"), style = 'width:720px;')
       ),
       tabPanel("Main",
 
@@ -39,14 +39,10 @@ app_ui <- function(request) {
             ),
             br(),
 
-            # tabPanel list, auto-generated from `input_config_table` --------------
-
-              auto_generated_ui(id = "tabs", selected = "Utility")
-
-            # ----------------------------------------------------------------------
+            # tabPanel list, auto-generated from `input_config_table`
+            auto_generated_ui(id = "tabs", selected = "Utility")
 
           ),
-
           mainPanel( width = 7,
             fluidRow(
               column(width = 9, tagList(
@@ -57,10 +53,6 @@ app_ui <- function(request) {
                 shiny::numericInput("wtp","Value of 1 QALY (k\uA3)",20,0,50,1)
               )
             ),
-            # fluidRow(style = 'margin-right: 3%;',
-            #          align = 'right',
-            #          shiny::numericInput("wtp","Value of 1 QALY (k\uA3)",20,0,50,1)
-            # ),
             gt::gt_output("table"),
             br(),
             plotOutput("icer_plot"),
@@ -71,6 +63,12 @@ app_ui <- function(request) {
         # verbatimTextOutput("status"),
 
         )
+      ),
+      tabPanel("Help",
+        div(includeMarkdown("inst/help.md"), style = 'width:720px;')
+      ),
+      tabPanel("References",
+        div(includeMarkdown("inst/refs.md"), style = 'width:720px;')
       )
     )
   )
