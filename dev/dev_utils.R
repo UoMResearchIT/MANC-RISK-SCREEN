@@ -5,7 +5,7 @@
 #' @param srcfile
 #' @param variable
 #' @param cnames
-replace_hard_indices <- function(srcfile, variable, name_list = NULL, type = 'vec'){
+replace_hard_indices <- function(srcfile, variable, name_list = NULL, type = 'vec', verbose = TRUE){
 
   stopifnot(is.character(variable))
   src  <- readLines(srcfile)
@@ -36,6 +36,10 @@ replace_hard_indices <- function(srcfile, variable, name_list = NULL, type = 've
                    'col' = paste0(variable,"$",name_list[j]),
                    'row' = paste0(variable,"[",name_list[j],",]")
     )
+    if (verbose) {
+      line_matches  <- grepl(pattern = pat, x = src, fixed = TRUE)
+      if (any(line_matches)) cat("Replacing", sum(line_matches), "instances of ", pat,"->", rep, "\n")
+    }
     src  <- gsub(pattern = pat, replace = rep, x = src, fixed = TRUE)
 
     if ( type != 'vec' ){
@@ -47,11 +51,15 @@ replace_hard_indices <- function(srcfile, variable, name_list = NULL, type = 've
                      'col' = paste0(variable,"$",name_list[j],"\\[\\1\\]"),
                      'row' = paste0(variable,"\\[",name_list[j],",\\1\\]")
       )
+      if (verbose) {
+        line_matches  <- grepl(pattern = pat, x = src, fixed = TRUE)
+        if (any(line_matches)) cat("Replacing", sum(line_matches), "instances of ", pat,"->", rep, "\n")
+      }
       src  <- gsub(pattern = pat, replace = rep, x = src)
     }
 
   }
 
-  writeLines(src, con=srcfile)
+  writeLines(src, con = srcfile)
 }
 

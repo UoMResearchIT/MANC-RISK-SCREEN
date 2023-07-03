@@ -36,7 +36,6 @@ Imports:
     ggplot2,
     gt,
     fs,
-    purrr,
     scales,
     yaml,
     grid, 

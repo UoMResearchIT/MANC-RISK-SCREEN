@@ -6,8 +6,8 @@
 #' @importFrom utils packageName packageVersion capture.output
 #' @noRd
 app_server <- function(input, output, session) {
-  # Your application server logic
 
+  # Load input lists on startup
   basic_inputs <- input_list("basic")
   advanced_inputs <- input_list("advanced")
   fixed_inputs <- input_list("fixed")
@@ -16,9 +16,10 @@ app_server <- function(input, output, session) {
   abs_lim <- parse_soft_limits(basic_inputs)
   rel_lim <- parse_relative_limits(basic_inputs)
 
-  # load_input_config(session)
+# Configure UI ----------------------------------------------------------------------------------------------------
+# currently "basic" mode is hard-coded
+# defaults might become reactive, if advanced mode is (dynamically) enabled
 
-  # defaults might become reactive, if advanced mode is enabled
   defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
   names(defaults) <- basic_inputs
 
@@ -37,6 +38,8 @@ app_server <- function(input, output, session) {
   mdl_inputs <- reactive( parse_inputs(used_inputs()) )
   mdl_output <- reactive( run_basic_model(mdl_inputs()))
 
+# Basic output ----------------------------------------------------------------------------------------------------
+
   output$table <- gt::render_gt(
     pretty_incCU_table(mdl_output(), input$wtp*1000) %>% gt::tab_options(table.font.size = 11)
   )
@@ -44,6 +47,8 @@ app_server <- function(input, output, session) {
   output$icer_plot <- renderPlot({
     print(plot_ce_table(mdl_output(), input$wtp*1000))
   })
+
+# Soft Limits (feedback) ------------------------------------------------------------------------------------------
 
   observeEvent(used_inputs(), {
 
@@ -61,7 +66,7 @@ app_server <- function(input, output, session) {
     if (any(both_out)) {
       mapply(shinyFeedback::showFeedbackDanger,
              basic_inputs[both_out],
-             mapply(paste, rel_lim$msg[both_out], abs_lim$msg[both_out], sep = ". "))
+             mapply(paste, rel_lim$msg[both_out], abs_lim$msg[both_out], sep = "<br>"))
     }
 
     if (any(out_of_rel_range)) {
@@ -77,6 +82,8 @@ app_server <- function(input, output, session) {
     }
 
   }, ignoreInit = TRUE)
+
+# Menu support ----------------------------------------------------------------------------------------------------
 
   # Required by mod_save_load_reset_server:
   # call shinyjs::reset at startup, to populate input$`shinyjs-resettable-`

@@ -1,8 +1,22 @@
-#' save_load_reset
+#' `save/load/reset/share module`
 #'
-#' @name save_load_reset
+#' @name mod_save_load_reset
 #' @description a shiny module to generate four working buttons: `reset`, `save`, `restore`, and `share`.
 #'
+#' @usage
+#' ```{r}
+#' # inside app_ui
+#' mod_save_load_reset_ui(id, ...)
+#'
+#' # inside app_server
+#' mod_save_load_reset_server(id,
+#'                            main_session = getDefaultReactiveDomain(),
+#'                            defaults, ext = "yml",
+#'                            downloader = NULL # downloadHandler(...)
+#'                            parser =  NULL # function(file) {...}
+#'                            .filename = "shiny_session",
+#'                            .bookmark = c())
+#' ```
 #' @details
 #'  `reset` is similar to `shinyjs::reset`, but affects only inputs listed in server argument `defaults`.
 #'    We will call `names(defaults)` the _selected inputs_.
@@ -16,9 +30,10 @@
 #'    the _selected inputs_ to the file contents.
 #'  `share` is a `bookmarkButton` (make sure to use `enableBookmarking = "url"`), it provides cleaner
 #'    URLs by using `setBookmarkExclude` to remove anything except _selected inputs_ which are *not* set
-#'    to their default value.
+#'    to their default value. Use `.bookmark` to bookmark additional inputs (e.g. selected tabs)
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id module instance ID
+#' @param ... additional parameters in `mod_save_load_reset_ui` are passed to the buttons
 #' @param main_session parent session, defaults to `getDefaultReactiveDomain()`
 #' @param defaults list of (selected) inputs with their default values. `names(defaults)` will be used
 #'    as the list of non-trivial inputs, i.e. those that should be saved, restored, and bookmarked.
@@ -27,8 +42,14 @@
 #'    the default prints a commented header followed by `as.yaml(input_list)` where
 #'    `input_list = reactiveValuesToList(main_session$input)[names(defaults)]`
 #' @param parser a function to read and parse a saved file. The default is `yaml.load_file`
+#' @param .filename default file name when saving
+#' @param .bookmark inputs that should **not** be excluded from bookmarking
+#'
+#' @return UI returns a `tagList` with four buttons: `reset`, `save`, `restore`, and `share`.
+#' @return Server forwards the output of `mod_modal_fileInput_server`
 #'
 #' @import shiny
+NULL
 
 mod_save_load_reset_ui <- function(id, ...) {
   ns <- NS(id)

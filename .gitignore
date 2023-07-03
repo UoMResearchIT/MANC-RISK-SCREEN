@@ -17,5 +17,6 @@ man/*
 .DS_Store
 packrat/lib*/
 packrat/src/*
+tests/testthat/Rplots.pdf
 
 dev/deploy_config.R
