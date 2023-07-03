@@ -123,19 +123,8 @@ pretty_incCU_table <- function(IncCU,
 #' @importFrom dplyr filter
 plot_ce_table <- function(IncCU, WTP = NULL) {
 
-  # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-  cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-
-  .colours = list(background = "white",
-                  line = cbPalette[6],
-                  dots = cbPalette[3],
-                  reflines = "gray80",
-                  labels = "white",
-                  axes = "black")
-
-  .widths = list(axes = 1.0,
-                 reflines = 0.5,
-                 main = 1.0)
+  # App-uniform styles (colors, line-widths, text sizes, etc.)
+  pltset <- plot_settings()
 
   if (is.null(WTP)) {
     m <- grep("^NHB\\d*",colnames(IncCU), perl = TRUE, value = TRUE)
@@ -170,12 +159,12 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
     theme_minimal() %+replace% theme(
       # panel.grid.major = element_blank(),
       # panel.grid.minor = element_blank(),
-      axis.text.x.top = element_text(colour = .colours$axes),
-      axis.text.y.right = element_text(colour = .colours$axes),
-      axis.title.x.top = element_text(colour = .colours$axes, face = "bold"),
-      axis.title.y.right = element_text(colour = .colours$axes, face = "bold"),
+      axis.text.x.top = element_text(colour = pltset$color$axes),
+      axis.text.y.right = element_text(colour = pltset$color$axes),
+      axis.title.x.top = element_text(colour = pltset$color$axes, face = "bold"),
+      axis.title.y.right = element_text(colour = pltset$color$axes, face = "bold"),
 
-      axis.text = element_text(size = 12),
+      axis.text = element_text(size = pltset$text$size),
       axis.title = element_text(face = "bold"),
       # axis.ticks = element_blank()
     )
@@ -195,9 +184,9 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
           origin.y,
           ax.y$dMajor
         ) - origin.x * WTP,
-        colour = .colours$reflines,
+        colour = pltset$color$reflines,
         lty = "longdash",
-        linewidth = .widths$reflines
+        linewidth = pltset$width$reflines
       )
   }
 
@@ -207,35 +196,35 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
   tblYT <- data.frame(y = seq_through(ax.y$dMin, ax.y$dMax, origin.y, ax.y$dMajor))
 
   plt <- plt +
-    geom_hline(yintercept = origin.y, linewidth = .widths$axes, colour = .colours$axes) +
-    geom_vline(xintercept = origin.x, linewidth = .widths$axes, colour = .colours$axes) +
+    geom_hline(yintercept = origin.y, linewidth = pltset$width$axes, colour = pltset$color$axes) +
+    geom_vline(xintercept = origin.x, linewidth = pltset$width$axes, colour = pltset$color$axes) +
     geom_segment(data = tblXT,
                  aes(x = .data$x,
                      xend = .data$x,
                      y = origin.y - ticklen.y,
                      yend = origin.y + ticklen.y),
-                 linewidth = .widths$axes) +
+                 linewidth = pltset$width$axes) +
     geom_segment(data = tblYT,
                  aes(x = origin.x - ticklen.x,
                      xend = origin.x + ticklen.x,
                      y = .data$y,
                      yend = .data$y),
-                 linewidth = .widths$axes) +
+                 linewidth = pltset$width$axes) +
 
     # Main layer
     geom_line(
       data = IncCU %>% filter(!.data$dom & !.data$extdom),
       aes(x = .data$QALY,
                    y = .data$Cost),
-      colour = .colours$line,
-      linewidth = .widths$main
+      colour = pltset$color$line,
+      linewidth = pltset$width$main
     ) +
     geom_point(shape = 19,
-               colour = .colours$dots,
-               size = 10) +
+               colour = pltset$color$dots,
+               size = pltset$text$size * 0.8) +
     geom_text(aes(label = .data$ID),
-              colour = .colours$labels,
-              size = 12 * 1 / 72 * 25.4,
+              colour = pltset$color$labels,
+              size = pltset$text$size * 1 / 72 * 25.4,
               fontface = "bold")
 }
 

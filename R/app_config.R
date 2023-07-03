@@ -42,3 +42,41 @@ get_golem_config <- function(
     use_parent = use_parent
   )
 }
+
+#' App-uniform styles (colors, line-widths, text sizes, etc.
+#' @noRd
+plot_settings <- function() {
+
+  # Color-blind friendly palette, from:
+  #   Masataka Okabe, Kei Ito, "Color Universal Design (CUD)",
+  #   University of Tokyo, Institute for Molecular and Cellular Biosciences (Japan)
+  #   11.20.2002. URL: https://jfly.uni-koeln.de/color/
+  cbpalette = list(blue = "#0072B2",
+                   cyan = "#56B4E9",
+                   green = "#009E73",
+                   yellow = "#F0E442",
+                   orange = "#E69F00",
+                   red = "#D55E00",
+                   pink = "#CC79A7",
+                   gray = "#999999")
+  list(
+    color = c(
+      cbpalette,
+      list(
+        background = "white",
+        line = cbpalette$red,
+        dots = cbpalette$green,
+        reflines = "gray80",
+        labels = "white",
+        axes = "black"
+      )
+    ),
+    width = list(
+      axes = 1.0,
+      reflines = 0.5,
+      main = 1.0),
+
+    text = list(
+      size = 12)
+  )
+}
