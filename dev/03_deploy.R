@@ -8,12 +8,11 @@ DEPLOY = F
 if (file.exists("dev/deploy_config.R")) source("dev/deploy_config.R")
 
 golem::detach_all_attached()
-if ( UPDATE_CONFIG ) { file.remove("R/auto_generated_ui.R") }
 devtools::load_all()
 
 # Update csv copy of shared "inputs.xlsx"
 if ( UPDATE_TSV ) {
-  config_table <- readxl::read_excel("../UoM/P086_Manc_Risk_Screen/dev/inputs.xlsx", sheet = "inputs")
+  config_table <- readxl::read_excel("../../OneDrive_UoM/P086_Manc_Risk_Screen/dev/inputs.xlsx", sheet = "inputs")
   write.table(config_table, "data-raw/input_config.tsv", row.names = F, sep = "\t", na = "", quote = F)
 }
 

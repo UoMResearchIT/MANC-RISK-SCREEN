@@ -427,6 +427,8 @@ devtools::load_all()
 # source("dev/add_use_data.R")
 
 INPUT_FILE <- "data-raw/input_config.tsv"
-OUTPUT_UI <- "R/auto_generated_ui.R"
+OUTPUT_UI <- tempfile("auto_generated_ui")
 
 parse_ui_table()
+
+file.copy(from = OUTPUT_UI, to = "R/auto_generated_ui.R", overwrite = TRUE)
