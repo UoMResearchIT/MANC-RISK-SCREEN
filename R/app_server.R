@@ -48,6 +48,31 @@ app_server <- function(input, output, session) {
     print(plot_ce_table(mdl_output(), input$wtp*1000))
   })
 
+# Custom input widgets --------------------------------------------------------------------------------------------
+
+  output$cancer.growth.widget <- renderUI({
+    plotOutput("cancer_growth_rate")
+  })
+  output$cancer_growth_rate <- renderPlot({
+    print(
+      plot_cancer_growth_rate(
+        log_norm_mean = input$log_norm_mean,
+        log_norm_sd = input$log_norm_sd,
+        max_size = input$max_size,
+        start_size = input$start_size)
+    )
+  }, bg = "transparent")
+
+  output$screening.widget <- renderUI({
+    plotOutput("screening_widget")
+  })
+  output$screening_widget <- renderPlot({
+    plot_sensitivity(beta_1 = input$beta_1,
+                     beta_2 = input$beta_2,
+                     sensitivity_max = input$sensitivity_max,
+                     Sen_VDG = c(input$VDG1_sen, input$VDG2_sen, input$VDG3_sen, input$VDG4_sen))
+  }, bg = "transparent")
+
 # Soft Limits (feedback) ------------------------------------------------------------------------------------------
 
   observeEvent(used_inputs(), {

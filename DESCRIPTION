@@ -40,7 +40,8 @@ Imports:
     yaml,
     grid, 
     stats, 
-    utils
+    utils,
+    reshape2
 Suggests: 
     spelling,
     stringr,
