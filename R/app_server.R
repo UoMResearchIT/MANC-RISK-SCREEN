@@ -48,6 +48,27 @@ app_server <- function(input, output, session) {
     print(plot_ce_table(mdl_output()))
   })
 
+  output$explanation <- renderUI({
+
+    IncCU <- mdl_output()
+    req(out_of_range)
+
+    best_strategy  <- IncCU$StratName[IncCU$rank == 1]
+
+    msg <- paste0('<p>With the specified inputs, the strategy that provides best value for money ',
+                  '(greatest net benefit) is <b>', best_strategy, '</b>.</p>')
+
+    if (any(out_of_range$rel_or_both)) {
+      msg <- paste0(msg, '<p style="color:red"><b>',
+                    'CAUTION: some combination(s) of input values you have ',
+                    'specified violate their expected rank-order. </b></p>')
+    }
+    if (any(out_of_range$abs_or_both)) {
+      msg <- paste0(msg, '<p style="color:orange"><b>',
+                    'CAUTION: some input value(s) you have specified fall outside',
+                    'the range available in the data we used to build the model. </b></p>')
+    }
+    HTML(msg)
   })
 
 # Custom input widgets --------------------------------------------------------------------------------------------
@@ -77,35 +98,38 @@ app_server <- function(input, output, session) {
 
 # Soft Limits (feedback) ------------------------------------------------------------------------------------------
 
-  observeEvent(used_inputs(), {
-
+  out_of_range <- reactiveValues()
+  observe({
     val <- used_inputs()
-    out_of_abs_range <- abs_lim$check(val)
-    out_of_rel_range <- rel_lim$check(val)
 
-    both_out <- out_of_abs_range & out_of_rel_range
-    out_of_rel_range <- out_of_rel_range & !both_out
-    out_of_abs_range <- out_of_abs_range & !both_out
+    out_of_range$abs_or_both <- abs_lim$check(val)
+    out_of_range$rel_or_both <- rel_lim$check(val)
 
+    out_of_range$both <- out_of_range$abs_or_both & out_of_range$rel_or_both
+    out_of_range$rel <- out_of_range$rel_or_both & !out_of_range$abs_or_both
+    out_of_range$abs <- out_of_range$abs_or_both & !out_of_range$rel_or_both
+  })
+
+  observeEvent(c(out_of_range$both, out_of_range$abs, out_of_range$rel), {
     # Clear all feedback
     sapply(basic_inputs, shinyFeedback::hideFeedback)
 
-    if (any(both_out)) {
+    if (any(out_of_range$both)) {
       mapply(shinyFeedback::showFeedbackDanger,
-             basic_inputs[both_out],
-             mapply(paste, rel_lim$msg[both_out], abs_lim$msg[both_out], sep = "<br>"))
+             basic_inputs[out_of_range$both],
+             mapply(paste, rel_lim$msg[out_of_range$both], abs_lim$msg[out_of_range$both], sep = "<br>"))
     }
 
-    if (any(out_of_rel_range)) {
+    if (any(out_of_range$rel)) {
       mapply(shinyFeedback::showFeedbackDanger,
-             basic_inputs[out_of_rel_range],
-             rel_lim$msg[out_of_rel_range])
+             basic_inputs[out_of_range$rel],
+             rel_lim$msg[out_of_range$rel])
     }
 
-    if (any(out_of_abs_range)) {
+    if (any(out_of_range$abs)) {
       mapply(shinyFeedback::showFeedbackWarning,
-             basic_inputs[out_of_abs_range],
-             abs_lim$msg[out_of_abs_range])
+             basic_inputs[out_of_range$abs],
+             abs_lim$msg[out_of_range$abs])
     }
 
   }, ignoreInit = TRUE)
