@@ -23,7 +23,10 @@ app_server <- function(input, output, session) {
   defaults <- .pkgenv$input_config_table[basic_inputs,"default"]
   names(defaults) <- basic_inputs
 
-  #lapply(advanced_inputs,shinyjs::disable)
+  # Add any inputs that should be included in save/restore, but are not basic_inputs
+  defaults$wtp <- .pkgenv$input_config_table["wtp","default"]
+
+  # lapply(advanced_inputs,shinyjs::disable)
   lapply(advanced_inputs,shinyjs::hide)
   lapply(fixed_inputs,shinyjs::hide)
 

@@ -1,3 +1,5 @@
+library(gsubfn)
+
 #' Use bounds from `PSA_config` to define soft limits in `input_config_table`
 #'
 #' @return Overwrites columns `rel_min` and `rel_max` of `input_config_table`
@@ -32,8 +34,8 @@ get_PSA_input_limits <- function(.MIN_REL_STEPS = 10,
   # Make sure lo < hi (might not be the case after unit conversion)
   list[lo, hi] <- list( pmin(lo, hi), pmax(lo, hi) )
 
-  abs.lo <- min(lo, abs.lo)
-  abs.hi <- max(hi, abs.hi)
+  abs.lo <- pmin(lo, abs.lo)
+  abs.hi <- pmax(hi, abs.hi)
 
   out_of_bounds <- !(def > abs.lo & def < abs.hi)
   if ( any(out_of_bounds) ) {
@@ -42,12 +44,18 @@ get_PSA_input_limits <- function(.MIN_REL_STEPS = 10,
   }
 
   step <- input_config_table[var_names, "step"]
+  names(step) <- var_names
 
-  n <- mapply(min, (hi - lo) / (step * .MIN_REL_STEPS), (abs.hi - abs.lo) / (step * .MIN_ABS_STEPS))
-  steps_too_small <- is.na(n) | n < 1
+  nice_step <- function(x) {10^(floor(log(x, base = 10)))}
+  step <- nice_step(step)
+
+  min_step <- pmin((hi - lo) / .MIN_REL_STEPS, (abs.hi - abs.lo) / .MIN_ABS_STEPS, na.rm = TRUE)
+  min_step <- nice_step(step)
+
+  steps_too_small <- is.na(step) | (min_step < step)
 
   if ( any(steps_too_small) ) {
-    step[steps_too_small] <- 10^(ceiling(log10(n[steps_too_small]) - 1))
+    step[steps_too_small] <- min_step[steps_too_small]
 
     warning('Reduced step size for ',
             stringr::str_flatten_comma(var_names[steps_too_small]))
@@ -65,5 +73,6 @@ get_PSA_input_limits <- function(.MIN_REL_STEPS = 10,
   input_config_table[var_names, "step"] <- step
 
   usethis::use_data(input_config_table, internal = FALSE, overwrite = TRUE)
+  data("input_config_table", envir = .pkgenv)
 }
 get_PSA_input_limits()

@@ -93,6 +93,10 @@ parse_ui_table <- function() {
 
   # add_use_data("input_config_table" = input_config_table)
   usethis::use_data(relative_limits, internal = F, overwrite = T)
+
+  # Update data in .pkgenv
+  data("input_config_table", envir = .pkgenv)
+  data("relative_limits", envir = .pkgenv)
 }
 
 is.empty <- function(x) {
@@ -126,7 +130,9 @@ parse_chunk <- function(chunk) {
     chunk[j, ] <- line
   }
 
-  write_chunk(group, title, elements)
+  if (!startsWith(group,'#')) {
+    write_chunk(group, title, elements)
+  }
   return(chunk)
 }
 

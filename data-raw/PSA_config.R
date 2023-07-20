@@ -133,6 +133,9 @@ draw_psa_runs <- function(version = '1.1',
   if ( write_out ) {
     PSA_config <- PSA
     usethis::use_data(PSA_config, internal = FALSE, overwrite = TRUE)
+
+    # Update data in .pkgenv
+    data("PSA_config", envir = .pkgenv)
   }
 
   # Use column names { mcid, PSA_var1, PSA_var2, ... }

@@ -2,7 +2,7 @@
 UPDATE_TSV = T
 UPDATE_CONFIG = T
 CHECK = T
-DEPLOY = F
+DEPLOY = T
 
 # Read boolean UPDATE_TSV, UPDATE_CONFIG, CHECK, DEPLOY
 if (file.exists("dev/deploy_config.R")) source("dev/deploy_config.R")

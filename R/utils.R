@@ -174,6 +174,8 @@ parse_soft_limits <- function(vars) {
 
   check <- function(val){
     out_of_range <- (val > limits$rel_max) | (val < limits$rel_min)
+    out_of_range[is.na(out_of_range)] <- FALSE
+    return(out_of_range)
   }
 
   return(list(check = check, msg = msg))
@@ -229,6 +231,7 @@ parse_relative_limits <- function(vars) {
     out_of_range[has_relative_min] <- (val[has_relative_min] < rel.min)
     out_of_range[has_relative_max] <- (val[has_relative_max] > rel.max)
 
+    out_of_range[is.na(out_of_range)] <- FALSE
     return(out_of_range)
   }
 

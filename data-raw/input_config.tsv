@@ -83,5 +83,8 @@ Utility												Utility Weights
 	utility_DCIS				1			0	1	0.01		Non/micro-invasive tumour (DCIS) utility decrement	
 	util_1to3	slider	x		0.82	util_4		0	1	0.01		Utility decrement (first year, set time independent) stages 1 to 3	
 	util_4	slider	x		0.75		util_1to3	0	1	0.01		Utility decrement (first year, set time independent) metastatic	
-	utility_stage_cat_y1											First year utility decrements (set time independent)	
-	utility_stage_cat_follow											Following year utility decrements (set time independent)	
+	utility_stage_cat_y1											First year utility decrements (set time independent)	Now function of util_1to3 and util_4, to replace them in advanced mode?
+	utility_stage_cat_follow											Following year utility decrements (set time independent)	Now function of util_1to3 and util_4, to replace them in advanced mode?
+													
+#Other												Inputs in groups with #Name will be added to the config table, but not (automatically) to the UI	
+	wtp	numeric	x		20			1	100			Value of 1 QALY (k\uA3)	
