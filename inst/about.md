@@ -2,15 +2,15 @@ _A discrete event simulation model to evaluate the costs and outcomes of differe
 <br />
 <br />
 
-Welcome to the **MANC-RISK-SCREEN** Shiny App! This app provides an accessible interface for researchers and decision makers to explore the **MANC-RISK-SCREEN** model. This page provides a brief description of the model and instructions as to how use this app.
+Welcome to the **MANC-RISK-SCREEN** Shiny App! This app provides an accessible interface for researchers and decision makers to explore the **MANC-RISK-SCREEN** model. This page provides a brief description of the underlying model. Click on the `help` tab for instructions on how use this app.
 
 ## About the model
 
-The **MANC-RISK-SCREEN** model is a discrete event simulation model which aims to predict the costs, outcomes, and cost-effectiveness of six breast cancer screening strategies in the UK. The model includes three universal screening strategies (no-screening, two-, and three screenings per year), and three strategies which use breast cancer risk prediction to alter the screening interval for women at different levels of risk:
+The **MANC-RISK-SCREEN** model is a discrete event simulation model which aims to predict the costs, outcomes, and cost-effectiveness of six breast cancer screening strategies in the UK. The model includes three universal screening strategies (`No screening`, `2-yearly screening for all`, and `3-yearly screening for all`), and three strategies which use breast cancer risk prediction to alter the screening interval for women at different levels of risk:
 
-1.	`PROCAS`: annual screening for women with 10-year risk higher than 8%, 2 yearly screenings for women with a risk between 5% and 8%, and 3 yearly screenings for all other women.
-2.	`Fullstrat` (Fully stratified screening): As above, but with 5 yearly screenings for women with a risk below 1.5%.
-3.	`Tertiles`: annual screening for women in the highest third of 10 year risk, 2 yearly screenings for women in the middle third, and 3 yearly screenings for women in the bottom third.
+1.	`PROCAS screening`: annual screening for women with 10-year risk higher than 8%, 2 yearly screenings for women with a risk between 5% and 8%, and 3 yearly screenings for all other women.
+2.	`Fully stratified screening`: As above, but with 5 yearly screenings for women with a risk below 1.5%.
+3.	`Risk Tertiles`: annual screening for women in the highest third of 10 year risk, 2 yearly screenings for women in the middle third, and 3 yearly screenings for women in the bottom third.
 
 The risk prediction tool used in the last three cases is the Tyrer-Cuzick questionnaire and Volpara automated breast density measurement.
 

@@ -51,6 +51,17 @@ get_incCU_table <- function(Names,
 
   attr(IncCU,"WTP") <- WTP
 
+  # Rename strategies
+  strategy_tags = list(
+    noscreening =	"No screening",
+    `2yr` =	"2-yearly screening for all",
+    `3yr` =	"3-yearly screening for all",
+    procas = "PROCAS screening",
+    fullstrat =	"Fully stratified screening",
+    tertiles = "Risk tertiles"
+  )
+  levels(IncCU$StratName) <- as.character(strategy_tags[levels(IncCU$StratName)])
+
   IncCU %<>% mutate(
     NHB = .data$QALY - .data$Cost / WTP,
     rank = rank(desc(.data$NHB))
