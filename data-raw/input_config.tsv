@@ -81,7 +81,7 @@ Cost												Cost data
 Utility												Utility Weights	
 	utility_ages	table		x	data.frame(age=c(30,35,40,45,50,55,60,65,70,75,80,85,90,95,100), util=c(0.9383,0.9145,0.9069,0.8824,0.8639,0.8344,0.8222,0.8072,0.8041,0.779,0.7533,0.6985,0.6497,0.6497,0.6497))							Set age adjusted utility values	
 	utility_DCIS				1			0	1	0.01		Non/micro-invasive tumour (DCIS) utility decrement	
-	util_1to3	slider	x		0.82			0	1	0.01		Utility decrement (first yeara, set time independent) stages 1 to 3	
-	util_4	slider	x		0.75			0	1	0.01		Utility decrement (first year, set time independent) metastatic	
+	util_1to3	slider	x		0.82	util_4		0	1	0.01		Utility decrement (first year, set time independent) stages 1 to 3	
+	util_4	slider	x		0.75		util_1to3	0	1	0.01		Utility decrement (first year, set time independent) metastatic	
 	utility_stage_cat_y1											First year utility decrements (set time independent)	
 	utility_stage_cat_follow											Following year utility decrements (set time independent)	
