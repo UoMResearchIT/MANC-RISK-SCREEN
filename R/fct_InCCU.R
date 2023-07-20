@@ -6,16 +6,18 @@
 #' @param Names strategy labels
 #' @param Costs vector of costs (GBP)
 #' @param QALYs vector of QALYs
+#' @param WTP reference Willingness to Pay, default 20e3 (GBP)
 #'
 #' @return a `tibble` with columns: `stratName`, `Cost`, `QALY`, `dom`, `extdom`,
 #'  `comp`, `IncCost`, `IncQALY`, `ICER`, and `ID`. Additionally, for each `WTP` value `j`,
 #'  there will be a pair of columns `NHBj` and `rankNHBj`.
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr arrange mutate select row_number
+#' @importFrom dplyr arrange mutate select row_number desc
 get_incCU_table <- function(Names,
                            Costs,
-                           QALYs) {
+                           QALYs,
+                           WTP = 20e3) {
 
   IncCU <- tibble::tibble(
     StratName = Names,
@@ -46,21 +48,26 @@ get_incCU_table <- function(Names,
           (IncCU$Cost[(i + 1):nn] - IncCU$Cost[comp]) / (IncCU$QALY[(i + 1):nn] - IncCU$QALY[comp]) < IncCU$ICER[i]
       )
   }
-  IncCU
+
+  attr(IncCU,"WTP") <- WTP
+
+  IncCU %<>% mutate(
+    NHB = .data$QALY - .data$Cost / WTP,
+    rank = rank(desc(.data$NHB))
+  )
 }
 
 #' `pretty_incCU_table`
 #'
 #' @param IncCU the result of `get_incCU_table`
-#' @param WTP reference Willingness to Pay, default 20e3
 #' @param .costDP,.qalyDP,.icerDP display digits for Cost, QALY, and ICER variables
 #'
 #' @return a `gt` rendered and formated version of `IncCU`
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate case_when select row_number desc
+#' @importFrom dplyr mutate case_when select row_number
 #' @importFrom gt gt cols_label cols_label_with tab_spanner cols_align opt_horizontal_padding opt_table_font
+#' @importFrom gt tab_style cells_body cell_text
 pretty_incCU_table <- function(IncCU,
-                               WTP = 20e3,
                                .costDP = dp(IncCU$Cost, 2),
                                .qalyDP = dp(IncCU$QALY, 2),
                                .icerDP = dp(IncCU$ICER, 2)) {
@@ -68,7 +75,12 @@ pretty_incCU_table <- function(IncCU,
   dp <- function(x, .min = 0, .N = 2) max(.min, round(.N - log10(stats::sd(x))))
   fmt <- function(x, DP) format(round(x, DP), nsmall = DP, big.mark = ",")
 
-  IncCU %<>%
+  pltset <- plot_settings()
+
+  # WTP should have been stored as attribute by get_incCU_table
+  WTP <- attr(IncCU, "WTP", exact = TRUE)
+
+  IncCU %>%
     mutate(
       strCost = fmt(.data$Cost, .costDP),
       strQALY = fmt(.data$QALY, .qalyDP),
@@ -78,21 +90,19 @@ pretty_incCU_table <- function(IncCU,
         .data$dom ~ "dominated",
         .data$extdom ~ "extendedly dominated",
         .default = fmt(.data$ICER, .icerDP)
-      ),
-      NHB = .data$QALY - .data$Cost / WTP,
-      rank = rank(desc(.data$NHB))
-    )
-
-  IncCU %>%
-    select("ID",
-                "StratName",
-                "strCost",
-                "strQALY",
-                "strIncCost",
-                "strIncQALY",
-                "strICER",
-                "NHB",
-                "rank") %>%
+      )
+    ) %>%
+    select(
+      "ID",
+      "StratName",
+      "strCost",
+      "strQALY",
+      "strIncCost",
+      "strIncQALY",
+      "strICER",
+      "NHB",
+      "rank"
+    ) %>%
     gt() %>%
     cols_label(
       StratName = "Strategy",
@@ -109,19 +119,28 @@ pretty_incCU_table <- function(IncCU,
     cols_align(align = "center",
                    columns = -c("StratName")) %>%
     opt_horizontal_padding(scale = 2) %>%
-    opt_table_font(font = "Arial")
+    opt_table_font(font = "Arial") %>%
+    tab_style(
+      style = list(
+        cell_text(color = pltset$color$highlight,
+                  weight = 'bold')
+      ),
+      locations = cells_body(rows = match(1, .data$rank))
+    )
 }
 
 #' `IncCUplot`
 #'
 #' @param IncCU table, as returned by `get_incCU_table`
-#' @param WTP Willingness to pay (slope of reference lines)
 #'
 #' @importFrom magrittr %>%
 #' @importFrom ggplot2 ggplot aes scale_x_continuous scale_y_continuous sec_axis theme theme_minimal unit %+replace% .pt
 #' @importFrom ggplot2 element_text element_blank geom_abline geom_text geom_hline geom_vline geom_line geom_point geom_text geom_segment
 #' @importFrom dplyr filter
-plot_ce_table <- function(IncCU, WTP = NULL) {
+plot_ce_table <- function(IncCU) {
+
+  # WTP should have been stored as attribute by get_incCU_table
+  WTP <- attr(IncCU, "WTP", exact = TRUE)
 
   # App-uniform styles (colors, line-widths, text sizes, etc.)
   pltset <- plot_settings()
@@ -199,12 +218,14 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
     geom_hline(yintercept = origin.y, linewidth = pltset$width$axes, colour = pltset$color$axes) +
     geom_vline(xintercept = origin.x, linewidth = pltset$width$axes, colour = pltset$color$axes) +
     geom_segment(data = tblXT,
+                 na.rm = TRUE,
                  aes(x = .data$x,
                      xend = .data$x,
                      y = origin.y - ticklen.y,
                      yend = origin.y + ticklen.y),
                  linewidth = pltset$width$axes) +
     geom_segment(data = tblYT,
+                 na.rm = TRUE,
                  aes(x = origin.x - ticklen.x,
                      xend = origin.x + ticklen.x,
                      y = .data$y,
@@ -219,9 +240,15 @@ plot_ce_table <- function(IncCU, WTP = NULL) {
       colour = pltset$color$line,
       linewidth = pltset$width$main
     ) +
-    geom_point(shape = 19,
-               colour = pltset$color$dots,
-               size = pltset$text$size * 0.8) +
+    geom_point(
+      mapping = aes(colour = factor(.data$rank == 1)),
+      shape = 19,
+      size = pltset$text$size * 0.8,
+      show.legend = FALSE
+    ) +
+    scale_colour_manual(
+      values = c("FALSE" = pltset$color$dots, "TRUE" = pltset$color$highlight),
+    ) +
     geom_text(aes(label = .data$ID),
               colour = pltset$color$labels,
               size = pltset$text$size * 1 / 72 * 25.4,

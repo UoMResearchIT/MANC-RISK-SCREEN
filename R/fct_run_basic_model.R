@@ -17,17 +17,7 @@ run_basic_model <- function(input_vector, ...) {
   qualys <- mgcv::predict.bam(qualy_model_obj,input_df)
   cost <- mgcv::predict.bam(cost_model_obj,input_df)
 
-  # output_df <- data.frame(qualy = qualys, cost = cost)
-  # rownames(output_df) <- strategies
-
-  # browser()
   IncCU <- get_incCU_table(strategies, cost, qualys, ...)
-
-  # output_df[,"incQALYS"]<-c(output_df$qualy-output_df["noscreening","qualy"])
-  # output_df[,"incCost"]<-c(output_df$cost-output_df["noscreening","cost"])
-  # output_df[,"ICER"]<-c(output_df$incCost/output_df$incQALYS)
-  # output_df[,"NB20k"]<-c((output_df$incQALYS*20000)-output_df$incCost)
-  # output_df[,"NB30k"]<-c((output_df$incQALYS*30000)-output_df$incCost)
 
   return( IncCU )
 }

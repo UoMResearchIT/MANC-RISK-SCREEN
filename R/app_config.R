@@ -66,6 +66,7 @@ plot_settings <- function() {
         background = "white",
         line = cbpalette$red,
         dots = cbpalette$green,
+        highlight = cbpalette$blue,
         reflines = "gray80",
         labels = "white",
         axes = "black"

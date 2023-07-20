@@ -36,16 +36,18 @@ app_server <- function(input, output, session) {
 
   used_inputs <- reactive( reactiveValuesToList(input)[basic_inputs] )
   mdl_inputs <- reactive( parse_inputs(used_inputs()) )
-  mdl_output <- reactive( run_basic_model(mdl_inputs()))
+  mdl_output <- reactive( run_basic_model(mdl_inputs(),input$wtp*1000))
 
 # Basic output ----------------------------------------------------------------------------------------------------
 
   output$table <- gt::render_gt(
-    pretty_incCU_table(mdl_output(), input$wtp*1000) %>% gt::tab_options(table.font.size = 11)
+    pretty_incCU_table(mdl_output()) %>% gt::tab_options(table.font.size = 11)
   )
 
   output$icer_plot <- renderPlot({
-    print(plot_ce_table(mdl_output(), input$wtp*1000))
+    print(plot_ce_table(mdl_output()))
+  })
+
   })
 
 # Custom input widgets --------------------------------------------------------------------------------------------
