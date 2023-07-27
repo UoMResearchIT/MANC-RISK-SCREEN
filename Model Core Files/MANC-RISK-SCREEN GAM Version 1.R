@@ -83,7 +83,7 @@ summary(modQ)
 
 ## Costs ---------------------------------------------------------------------------------------
 modC <- bam(data = PSA_all,
-            formula = cost ~
+            formula = cost ~ 
               s(PSA_cost_strat, by = alternative, bs = "tp") +
               s(PSA_costvar, by = alternative, bs = "tp") +
               s(PSA_gamma_survival_1, by = alternative, bs = "tp") +
