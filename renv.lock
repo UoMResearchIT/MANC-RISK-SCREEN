@@ -73,8 +73,8 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "MANC-RISK-SCREEN",
       "RemoteUsername": "UoMResearchIT",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "62402e3143184746e00f52765a281e06c4f20cb1",
+      "RemoteRef": "renv",
+      "RemoteSha": "930afccd1ab31b67543f571f7a0be19f6f9c8d72",
       "Requirements": [
         "R",
         "bslib",
@@ -100,7 +100,7 @@
         "utils",
         "yaml"
       ],
-      "Hash": "c52f660c52bcbf717976e597da0c7fd6"
+      "Hash": "bbca3d365b231107c18ab3786e5c1508"
     },
     "Matrix": {
       "Package": "Matrix",
