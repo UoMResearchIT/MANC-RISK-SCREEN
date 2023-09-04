@@ -14,6 +14,7 @@ data-raw
 tests
 packrat
 renv
+renv.lock
 
 NEWS.md
 README.md

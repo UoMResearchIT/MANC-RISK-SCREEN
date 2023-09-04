@@ -20,3 +20,5 @@
 ^\.lintr
 ^\.Rprofile$
 ^\.rscignore$
+^packrat/
+^\.Rproj\.user$
