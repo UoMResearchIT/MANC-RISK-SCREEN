@@ -121,9 +121,9 @@ replicated into the app code. These include:
   `devtools::check()`) to verify that all required inputs are listed as
   *basic* and will be available in the UI (see above).
 
-  If changes on the UI configuration table are required
-  [`input_config.tsv`](data-raw/input_config_table.R) these will **not**
-  be reflected in the app, until [`update.R`](dev/update.R) is used to
+  Changes made to the UI configuration table
+  [`input_config.tsv`](data-raw/input_config_table.R) will **not** be
+  reflected in the app, until [`update.R`](dev/update.R) is used to
   parse the table and update the UI code.
 
 - [`costs_laudicella.R`](R/costs_laudicella.R) contains code that is
