@@ -27,6 +27,8 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(app_title),
 
+    page_meta_data(app_title),
+
     # Banner
     tag('header', list(
       id = "banner",
