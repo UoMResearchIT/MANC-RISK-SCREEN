@@ -4,7 +4,10 @@ Model Core Files/PSAresults.csv
 Model Core Files/noscreening_PSA.csv
 Model Core Files/PSA check.xlsx
 
-renv/*
+renv/.gitignore
+renv/staging
+renv/activate.R
+
 bak/*
 man/*
 
