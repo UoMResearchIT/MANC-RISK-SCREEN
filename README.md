@@ -21,6 +21,12 @@ meta-models: `data/cost_model_obj.rda`, and `data/qualy_model_obj.rda`.
 These are Generalized Additive Model (GAM) objects, trained on a set
 (`data/PSA_config.rda`) of Monte Carlo runs on the actual model.
 
+The live app can be accessed at:
+<https://shiny.its.manchester.ac.uk/MancRiskScreen/>
+
+> [!NOTE]
+> Changes committed to this repository are *not* published automatically. You'll have to ask the current mantainer to upload your changes; or better: take ownership of the app (see [publishing](#Publishing), below).
+
 ## Installation (for development)
 
 After cloning the repo, open the `MancRiskScreenUI.Rproj` project in
@@ -28,13 +34,16 @@ After cloning the repo, open the `MancRiskScreenUI.Rproj` project in
 
 ``` r
 # Install package dependencies
-packrat::restore()
+renv::restore()
 
 # Test
 source("dev/run_dev.R", echo = TRUE)
 ```
 
 ## App structure
+
+The static content in the `About`, `Help`, and `References` sections can
+be found in the corresponding markdown files under [`inst`](inst/).
 
 The bulk of the UI is written programatically by
 [`parse_ui_table`](dev/parse_ui_table.R), based on the *UI configuration
@@ -94,11 +103,8 @@ along with their details, and how they are divided into input-groups
 
 ## Updating the app
 
-\[!WARNING\] The app has no hard dependencies on the parent repo (the
-code is too poorly structured to be reusable, and to make
-change-tracking meaningful). So relevant changes in the
-`Model Core Files` directory have to be tracked down (by hand) and
-replicated into the app code. These include:
+> [!WARNING]
+> The app has no hard dependencies on the parent repo (the code is too poorly structured to be reusable, and to make change-tracking meaningful). So relevant changes in the `Model Core Files` directory have to be tracked down (by hand) and replicated into the app code. These include:
 
 - Monte Carlo parameter variations found in files:
 
@@ -150,7 +156,8 @@ git merge upstream/main
 source("dev/update.R", echo = TRUE)
 ```
 
-4.  Manually track down and apply the changes outlined above.
+4.  Manually track down and apply the changes outlined above. Take deep
+    breaths.
 
 5.  Update the UI again, and test
 
@@ -159,6 +166,46 @@ source("dev/update.R", echo = TRUE)
 devtools::check()
 source("dev/run_dev.R", echo = TRUE)
 ```
+
+## Publishing
+
+The app is currently hosted on the University’s [Pilot Shiny
+Server](https://github.com/UoMResearchIT/r-shinysender). It can be
+accessed at:
+
+<https://shiny.its.manchester.ac.uk/MancRiskScreen/>
+
+To publish changes, you’ll have to take ownership of the app:
+
+1.  Follow the instructions
+    [here](https://github.com/UoMResearchIT/r-shinysender/blob/master/README.md)
+    to get user access to the *Shiny Server*.
+
+2.  Commit your changes to this repo, and make sure to:
+
+- Update the `Version` field in the `DESCRIPTION` file, and tag the git
+  commit accordingly.
+- Modify the `.Rprofile` to include your University user ID:
+  `Sys.setenv(SHINYSENDER_USER="<USER>")`
+- Make sure you have an active GitHub token (see
+  `usethis::gh_token_help`)
+
+3.  Use `shinysender::ss_uploadAddin()` to upload the app to the Shiny
+    Server. You will get a URL of the form:
+    `https://shiny.its.manchester.ac.uk/<USER>/MancRiskScreenUI` The
+    name `MancRiskScreenUI` is defined by `SHINYSENDER_REMOTENAME` in
+    the `.Rprofile`.
+
+4.  The URL <https://shiny.its.manchester.ac.uk/MancRiskScreen/> is just
+    a custom link to the current mantainer’s user app. Ask the server
+    admin to modify the config file:
+    `/etc/shiny-server/shiny-server.conf` to point to the new `<USER>`:
+
+        location /MancRiskScreen {
+          run_as <USER>;
+          app_dir /home/<USER>/ShinyApps/MancRiskScreenUI;
+          log_dir /var/log/shiny-server;
+        }
 
 [^1]: Input elements within the `#Other` group (and in fact any group
     with a name starting with `#`) will not be written to the
