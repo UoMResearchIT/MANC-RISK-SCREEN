@@ -648,6 +648,19 @@
       ],
       "Hash": "e2817ccf4a065c5d9d7f2cfbe7c1d78c"
     },
+    "metathis": {
+      "Package": "metathis",
+      "Version": "1.1.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "htmltools",
+        "knitr",
+        "magrittr",
+        "purrr"
+      ],
+      "Hash": "687eb3d0192d919d51119619c2b3c308"
+    },
     "mgcv": {
       "Package": "mgcv",
       "Version": "1.9-0",

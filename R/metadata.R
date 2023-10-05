@@ -1,6 +1,6 @@
 #' Metadata tags for browsers and social media
 #' @importFrom metathis meta meta_general meta_social meta_google_scholar
-#' @return
+#' @return shiny.tag.list
 page_meta_data <- function(app_title = "MANC-RISK-SCREEN",
                            description = "Discrete event simulation model to predict the costs, outcomes, and cost-effectiveness of six breast cancer screening strategies in the UK."
                            ) {
